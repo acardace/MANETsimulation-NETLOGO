@@ -1,6 +1,6 @@
 extensions [nw]
 
-breed [ nodes node ]
+breed [nodes node]
 breed [halos halo]
 
 nodes-own [ node-radius node-max-degree node-degree ]
@@ -50,8 +50,7 @@ end
 to move [ moves-no ]
   repeat moves-no [
     ask nodes[
-      rt 360 / (random 360 + 1)
-      fd 1
+      rt random 360
     ]
     tick
   ]
