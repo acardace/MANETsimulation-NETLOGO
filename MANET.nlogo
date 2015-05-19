@@ -2,8 +2,32 @@ extensions [nw]
 
 breed [nodes node]
 breed [halos halo]
+undirected-link-breed [halolinks halolink]
+undirected-link-breed [connections connection]
 
+
+;;nodes local vars
 nodes-own [ node-radius node-max-degree node-degree ]
+
+
+
+to make-halo [ halo-radius ]  ;; node procedure
+  ;; when you use HATCH, the new turtle inherits the
+  ;; characteristics of the parent.  so the halo will
+  ;; be the same color as the turtle it encircles (unless
+  ;; you add code to change it
+  hatch-halos 1
+  [ set size halo-radius + 2 ;; the +1 its just for visualization purposes
+    ;; Use an RGB color to make halo three fourths transparent
+    set color lput 64 extract-rgb color
+    __set-line-thickness 0.2
+    ;; We create an invisible undirected link from the node
+    ;; to the halo.  Using tie means that whenever the
+    ;; runner moves, the halo moves with it.
+    create-halolink-with myself
+    [ tie
+      hide-link ] ]
+end
 
 ;; Setup the environment
 to setup
@@ -12,10 +36,10 @@ to setup
   set-default-shape halos "thin ring"
   create-nodes nodes-number
   ask nodes [ ;; make the turtle initial position random to spread them out on the torus
-    setxy random-xcor random-ycor 
+    setxy random-xcor random-ycor
     ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
-      set node-radius random radius
-      set node-max-degree random max-degree
+      set node-radius ( (random radius) + 1 )
+      set node-max-degree ( (random max-degree) + 1 )
     ]
     [
       set node-radius radius
@@ -25,25 +49,6 @@ to setup
     make-halo node-radius
   ] 
   reset-ticks
-end
-
-
-to make-halo [ halo-radius ]  ;; node procedure
-  ;; when you use HATCH, the new turtle inherits the
-  ;; characteristics of the parent.  so the halo will
-  ;; be the same color as the turtle it encircles (unless
-  ;; you add code to change it
-  hatch-halos 1
-  [ set size halo-radius
-    ;; Use an RGB color to make halo three fourths transparent
-    set color lput 64 extract-rgb color
-    __set-line-thickness 0.2
-    ;; We create an invisible directed link from the node
-    ;; to the halo.  Using tie means that whenever the
-    ;; runner moves, the halo moves with it.
-    create-link-from myself
-    [ tie
-      hide-link ] ]
 end
 
 ;; Move each node as many moves-no as set
@@ -56,15 +61,46 @@ to move [ moves-no ]
     tick
   ]
 end
+
+;;link the node with node in its radius
+to link-neighbours
+  ask nodes[
+    if ( node-degree < node-max-degree) [  
+      let prev-links-no count connections
+      
+      ask other nodes in-radius node-radius [ connect myself ] ;;ask just found node to connect
+      
+      if ( count connections > prev-links-no )[ ;;let's check if the node has been truly connected
+        set node-degree node-degree + 1
+      ]  
+    ]
+  ]
+end
+
+to connect [ from-node ] 
+  print "request from node" 
+  print from-node
+  print "to"
+  print who
+  
+  ifelse ( node-degree < node-max-degree) [
+    create-connection-with from-node
+    set node-degree node-degree + 1
+  ][
+    show my-connections 
+    ask one-of my-connections [ die ]
+    set node-degree node-degree - 1
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-380
-5
-1067
-666
+386
+14
+825
+440
 18
 17
-36.86
+23.46
 1
 14
 1
@@ -108,7 +144,7 @@ max-degree
 max-degree
 1
 100
-5
+1
 1
 1
 NIL
@@ -123,7 +159,7 @@ nodes-number
 nodes-number
 1
 100
-9
+3
 1
 1
 NIL
@@ -149,10 +185,10 @@ NIL
 BUTTON
 152
 285
-276
-323
+270
+322
 Step
-move step-size
+move step-size\nlink-neighbours
 NIL
 1
 T
@@ -172,7 +208,7 @@ step-size
 step-size
 1
 100
-1
+3
 1
 1
 NIL
@@ -185,9 +221,26 @@ SWITCH
 148
 all-different
 all-different
-0
+1
 1
 -1000
+
+BUTTON
+8
+337
+130
+370
+Go
+move 1\nlink-neighbours
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
