@@ -63,13 +63,8 @@ end
 
 ;;link the node with node in its radius
 to link-neighbours
-  ask nodes[
-    
-    ifelse ( node-degree < node-max-degree ) [
-      ask other nodes in-radius node-radius [ connect myself ] ;;ask to be connected  
-    ] [
-      connect ( nodes in-radius radius ) ;;connect the node prior to some replacement strategy
-    ]
+  ask nodes[   
+      connect ( other nodes in-radius radius ) ;;connect the node prior to some replacement strategy
   ]
 end
 
@@ -77,13 +72,16 @@ end
 to connect [ from-node ]  
   let node-list []
   
-  if ( is-node? from-node = true )[
+  ifelse ( is-node? from-node = true )[
     set node-list lput from-node node-list
+  ]
+  [
+    set node-list from-node
   ]
   
   foreach sort node-list [
     if ( link-neighbor? ? = false ) [
-      ifelse ( node-degree < node-max-degree ) [
+      ifelse ( node-degree < node-max-degree and ( [get-node-degree] of node ? ) > ( [get-max-node-degree] of node ? ) ) [
         set node-degree node-degree + 1
         ask ? [ set node-degree node-degree + 1 ]
         create-connection-with ?
@@ -104,6 +102,14 @@ to random-kill [ node-to-connect ]
   ask one-of my-connections [ die ]
   create-connection-with node-to-connect
   ask node-to-connect [ set node-degree node-degree + 1 ]
+end
+
+to-report get-node-degree
+  report node-degree
+end
+
+to-report get-max-node-degree
+  report node-max-degree
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -142,7 +148,7 @@ radius
 radius
 1
 100
-15
+6
 1
 1
 NIL
@@ -172,7 +178,7 @@ nodes-number
 nodes-number
 1
 100
-18
+6
 1
 1
 NIL
@@ -221,7 +227,7 @@ step-size
 step-size
 1
 100
-1
+13
 1
 1
 NIL
