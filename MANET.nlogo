@@ -1,4 +1,3 @@
-extensions [nw]
 
 breed [nodes node]
 breed [halos halo]
@@ -17,7 +16,7 @@ to make-halo [ halo-radius ]  ;; node procedure
   ;; be the same color as the turtle it encircles (unless
   ;; you add code to change it
   hatch-halos 1
-  [ set size halo-radius + 2 ;; the +1 its just for visualization purposes
+  [ set size halo-radius + 2 ;; the +2 its just for visualization purposes
     ;; Use an RGB color to make halo three fourths transparent
     set color lput 64 extract-rgb color
     __set-line-thickness 0.2
@@ -65,42 +64,56 @@ end
 ;;link the node with node in its radius
 to link-neighbours
   ask nodes[
-    if ( node-degree < node-max-degree) [  
-      let prev-links-no count connections
-      
-      ask other nodes in-radius node-radius [ connect myself ] ;;ask just found node to connect
-      
-      if ( count connections > prev-links-no )[ ;;let's check if the node has been truly connected
-        set node-degree node-degree + 1
-      ]  
+    
+    ifelse ( node-degree < node-max-degree ) [
+      ask other nodes in-radius node-radius [ connect myself ] ;;ask to be connected  
+    ] [
+      connect ( nodes in-radius radius ) ;;connect the node prior to some replacement strategy
     ]
   ]
 end
 
-to connect [ from-node ] 
-  print "request from node" 
-  print from-node
-  print "to"
-  print who
+;;this function can work both with agentsets or agents 
+to connect [ from-node ]  
+  let node-list []
   
-  ifelse ( node-degree < node-max-degree) [
-    create-connection-with from-node
-    set node-degree node-degree + 1
-  ][
-    show my-connections 
-    ask one-of my-connections [ die ]
-    set node-degree node-degree - 1
+  if ( is-node? from-node = true )[
+    set node-list lput from-node node-list
   ]
+  
+  foreach sort node-list [
+    if ( link-neighbor? ? = false ) [
+      ifelse ( node-degree < node-max-degree ) [
+        set node-degree node-degree + 1
+        ask ? [ set node-degree node-degree + 1 ]
+        create-connection-with ?
+      ][
+        replacement-strategy ?
+      ]
+   ]
+ ]
+end
+
+;; wrapper function for the replacement strategy
+to replacement-strategy [ node-to-connect ]
+  random-kill node-to-connect
+end
+
+;;randomly kill strategy
+to random-kill [ node-to-connect ]
+  ask one-of my-connections [ die ]
+  create-connection-with node-to-connect
+  ask node-to-connect [ set node-degree node-degree + 1 ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-386
-14
-825
-440
+382
+8
+980
+586
 18
 17
-23.46
+28.8
 1
 14
 1
@@ -129,7 +142,7 @@ radius
 radius
 1
 100
-11
+15
 1
 1
 NIL
@@ -159,17 +172,17 @@ nodes-number
 nodes-number
 1
 100
-3
+18
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-7
-285
-130
-322
+9
+173
+132
+210
 Setup
 setup
 NIL
@@ -183,10 +196,10 @@ NIL
 1
 
 BUTTON
-152
-285
-270
-322
+154
+173
+272
+210
 Step
 move step-size\nlink-neighbours
 NIL
@@ -208,7 +221,7 @@ step-size
 step-size
 1
 100
-3
+1
 1
 1
 NIL
@@ -221,18 +234,35 @@ SWITCH
 148
 all-different
 all-different
-1
+0
 1
 -1000
 
 BUTTON
-8
-337
-130
-370
+10
+225
+132
+258
 Go
 move 1\nlink-neighbours
 T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+164
+227
+228
+261
+Link
+link-neighbours
+NIL
 1
 T
 OBSERVER
