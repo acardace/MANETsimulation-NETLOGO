@@ -51,19 +51,20 @@ to move [ moves-no ]
   repeat moves-no [
     ask nodes[
       rt random 360
+      fd 1
     ]
     tick
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-399
-14
-1261
-851
+380
+5
+1067
+666
 18
 17
-23.03
+36.86
 1
 14
 1
@@ -92,7 +93,7 @@ radius
 radius
 1
 100
-19
+11
 1
 1
 NIL
