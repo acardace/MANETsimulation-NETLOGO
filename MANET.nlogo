@@ -199,6 +199,18 @@ to-report size-connected-component
   report max-conn-comp
 end
 
+;;size of the giant component % (connectivity)
+to-report size-connected-component-percent
+  nw:set-context nodes connections
+  let max-conn-comp 0
+  foreach nw:weak-component-clusters [
+   if count ? > max-conn-comp [
+    set max-conn-comp count ? 
+   ]
+  ]
+  report ( max-conn-comp / nodes-number ) * 100
+end
+
 ;;Reports the average shortest-path length of the giant component
 to-report avg-path-length
   nw:set-context nodes connections
@@ -214,6 +226,21 @@ to-report avg-path-length
   
   nw:set-context g-component connections
   report nw:mean-path-length
+end
+
+;;Reports the edge density
+to-report edge-density
+  report ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) )
+end
+
+
+;;Reports the edge density %
+to-report edge-density-percent
+  report ( ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) ) ) * 100
+end
+
+to-report count-connections
+  report count connections
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -252,10 +279,10 @@ radius
 radius
 0.01
 1
-0.15
+0.19
 0.01
 1
-%
+NIL
 HORIZONTAL
 
 SLIDER
@@ -267,7 +294,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-11
+4
 1
 1
 NIL
@@ -282,7 +309,7 @@ nodes-number
 nodes-number
 1
 100
-50
+41
 1
 1
 NIL
@@ -331,7 +358,7 @@ node-speed
 node-speed
 1
 max-pxcor * 2
-2
+1
 1
 1
 (number of steps)
@@ -344,7 +371,7 @@ SWITCH
 148
 all-different
 all-different
-0
+1
 1
 -1000
 
@@ -381,7 +408,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plotxy (ticks) (size-connected-component / nodes-number)"
+"default" 1.0 0 -16777216 true "" "plot (size-connected-component / nodes-number)"
 
 MONITOR
 284
@@ -397,11 +424,62 @@ size-connected-component
 MONITOR
 285
 355
-531
+493
 400
 Avg path length of giant component
 avg-path-length
+3
+1
+11
+
+PLOT
+24
+457
+270
+607
+Edge Density
+Time
+Edge-Density
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot edge-density"
+
+MONITOR
+287
+458
+381
+503
+Connections
+count-connections
 17
+1
+11
+
+MONITOR
+420
+302
+537
+347
+Connectivity (%)
+size-connected-component-percent
+17
+1
+11
+
+MONITOR
+390
+459
+494
+504
+Edge-Density (%)
+edge-density-percent
+3
 1
 11
 
