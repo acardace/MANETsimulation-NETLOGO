@@ -6,7 +6,7 @@ undirected-link-breed [connections connection]
 
 
 ;;nodes local vars
-nodes-own [ node-radius node-max-degree node-degree ]
+nodes-own [ node-radius node-max-degree node-degree connected-nodes ]
 
 
 
@@ -45,6 +45,7 @@ to setup
       set node-max-degree max-degree
     ]
     set node-degree 0 
+    set connected-nodes []
     make-halo node-radius
   ] 
   reset-ticks
@@ -63,9 +64,25 @@ end
 
 ;;link the node with node in its radius
 to link-neighbours
-  ask nodes[   
-      connect ( other nodes in-radius radius ) ;;connect the node prior to some replacement strategy
+  ask nodes[
+    disconnect-not-in-radius   
+    connect ( other nodes in-radius node-radius ) ;; connect the node prior to some replacement strategy
+    set-connected-nodes
   ]
+end
+
+to disconnect-not-in-radius
+  let nodes-in-radius []
+  set nodes-in-radius sort other nodes in-radius node-radius
+  foreach connected-nodes [
+    if ( member? ? nodes-in-radius = false )[
+      
+    ]
+  ]
+end
+
+to set-connected-nodes
+  set connected-nodes sort other nodes in-radius node-radius
 end
 
 ;;this function can work both with agentsets or agents 
@@ -193,7 +210,7 @@ max-degree
 max-degree
 1
 100
-15
+3
 1
 1
 NIL
@@ -208,7 +225,7 @@ nodes-number
 nodes-number
 1
 100
-14
+5
 1
 1
 NIL
@@ -270,7 +287,7 @@ SWITCH
 148
 all-different
 all-different
-0
+1
 1
 -1000
 
