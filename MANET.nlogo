@@ -1,13 +1,48 @@
+extensions [ nw ]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Breeds definitions ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 breed [nodes node]
 breed [halos halo]
+breed [ empty-set ]
 undirected-link-breed [halolinks halolink]
 undirected-link-breed [connections connection]
 
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Local variables ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;nodes local vars
 nodes-own [ node-radius node-max-degree node-degree connected-nodes ]
 
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Setup the environment
+to setup
+  clear-all
+  set-default-shape turtles "default"
+  set-default-shape halos "thin ring"
+  create-nodes nodes-number
+  ask nodes [ ;; make the turtle initial position random to spread them out on the torus
+    setxy random-xcor random-ycor
+    ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
+      set node-radius  ( (random-float radius) + 0.01 ) * max-pxcor * 2
+      set node-max-degree ( (random max-degree) + 1 )
+    ]
+    [
+      set node-radius radius * max-pxcor * 2
+      set node-max-degree max-degree
+    ]
+    set node-degree 0 
+    set connected-nodes []
+    make-halo node-radius
+  ]
+  reset-ticks
+end
 
 
 to make-halo [ halo-radius ]  ;; node procedure
@@ -28,28 +63,9 @@ to make-halo [ halo-radius ]  ;; node procedure
       hide-link ] ]
 end
 
-;; Setup the environment
-to setup
-  clear-all
-  set-default-shape turtles "default"
-  set-default-shape halos "thin ring"
-  create-nodes nodes-number
-  ask nodes [ ;; make the turtle initial position random to spread them out on the torus
-    setxy random-xcor random-ycor
-    ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
-      set node-radius ( (random radius) + 1 )
-      set node-max-degree ( (random max-degree) + 1 )
-    ]
-    [
-      set node-radius radius
-      set node-max-degree max-degree
-    ]
-    set node-degree 0 
-    set connected-nodes []
-    make-halo node-radius
-  ] 
-  reset-ticks
-end
+;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedure ;;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Move each node as many moves-no as set
 to move [ moves-no ]
@@ -57,17 +73,31 @@ to move [ moves-no ]
     ask nodes[
       rt random 360
       fd 1
+      disconnect-not-in-radius
+      set-connected-nodes
     ]
+    link-neighbours
     tick
   ]
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Auxiliary Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to increase-degree
+  set node-degree node-degree + 1
+end
+
+
+to decrease-degree
+  set node-degree node-degree - 1
+end
+
 ;;link the node with node in its radius
 to link-neighbours
-  ask nodes[
-    disconnect-not-in-radius   
+  ask nodes[   
     connect ( other nodes in-radius node-radius ) ;; connect the node prior to some replacement strategy
-    set-connected-nodes
   ]
 end
 
@@ -117,6 +147,10 @@ to kill-link
   die
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Strategies Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; wrapper function for the replacement strategy
 to replacement-strategy [ node-to-connect ]
   random-kill node-to-connect
@@ -127,21 +161,23 @@ to random-kill [ node-to-connect ]
   ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
     ask one-of my-connections [ kill-link ]
     ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
-    create-connection-with node-to-connect
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
       ask one-of my-connections [ kill-link ]
       ask node-to-connect [ increase-degree ]
-      create-connection-with node-to-connect
     ]
     [
       ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
       increase-degree
-      create-connection-with node-to-connect
     ]
   ]
+  create-connection-with node-to-connect
 end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Reports Procedures ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report get-node-degree
   report node-degree
@@ -151,24 +187,43 @@ to-report get-max-node-degree
   report node-max-degree
 end
 
-
-to increase-degree
-  set node-degree node-degree + 1
+;;size of the giant component
+to-report size-connected-component
+  nw:set-context nodes connections
+  let max-conn-comp 0
+  foreach nw:weak-component-clusters [
+   if count ? > max-conn-comp [
+    set max-conn-comp count ? 
+   ]
+  ]
+  report max-conn-comp
 end
 
-
-to decrease-degree
-  set node-degree node-degree - 1
+;;Reports the average shortest-path length of the giant component
+to-report avg-path-length
+  nw:set-context nodes connections
+  let max-conn-comp 0
+  let g-component empty-set
+  
+  foreach nw:weak-component-clusters [
+   if count ? > max-conn-comp [
+    set max-conn-comp count ? 
+    set g-component ?
+   ]
+  ]
+  
+  nw:set-context g-component connections
+  report nw:mean-path-length
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-378
+627
 5
-970
-575
+1238
+604
 18
 17
-33.32432432432433
+16.243243243243242
 1
 14
 1
@@ -195,24 +250,24 @@ SLIDER
 95
 radius
 radius
+0.01
 1
-100
-6
+0.15
+0.01
 1
-1
-NIL
+%
 HORIZONTAL
 
 SLIDER
-195
-15
-368
-48
+188
+63
+361
+96
 max-degree
 max-degree
 1
-100
-3
+nodes-number - 1
+11
 1
 1
 NIL
@@ -227,7 +282,7 @@ nodes-number
 nodes-number
 1
 100
-5
+50
 1
 1
 NIL
@@ -256,7 +311,7 @@ BUTTON
 273
 209
 Step
-move step-size\nlink-neighbours
+move node-speed
 NIL
 1
 T
@@ -268,18 +323,18 @@ NIL
 1
 
 SLIDER
-195
-62
-368
-95
-step-size
-step-size
+189
+13
+412
+46
+node-speed
+node-speed
 1
-100
-8
+max-pxcor * 2
+2
 1
 1
-NIL
+(number of steps)
 HORIZONTAL
 
 SWITCH
@@ -299,7 +354,7 @@ BUTTON
 132
 258
 Go
-move step-size\nlink-neighbours
+move node-speed
 T
 1
 T
@@ -310,22 +365,45 @@ NIL
 NIL
 1
 
-BUTTON
-155
-225
-271
-260
-Link
-link-neighbours
-NIL
+PLOT
+24
+301
+270
+451
+Growth of connected component
+Time
+Size
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plotxy (ticks) (size-connected-component / nodes-number)"
+
+MONITOR
+284
+302
+412
+347
+Giant component size
+size-connected-component
+17
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+11
+
+MONITOR
+285
+355
+531
+400
+Avg path length of giant component
+avg-path-length
+17
 1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
