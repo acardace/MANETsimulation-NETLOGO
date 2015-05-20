@@ -16,7 +16,7 @@ to make-halo [ halo-radius ]  ;; node procedure
   ;; be the same color as the turtle it encircles (unless
   ;; you add code to change it
   hatch-halos 1
-  [ set size halo-radius + 3 ;; the +3 its just for visualization purposes
+  [ set size halo-radius + 4 ;; the + 4 it's just for visualization reasons
     ;; Use an RGB color to make halo three fourths transparent
     set color lput 64 extract-rgb color
     __set-line-thickness 0.2
@@ -72,17 +72,19 @@ to link-neighbours
 end
 
 to disconnect-not-in-radius
-  let nodes-in-radius []
-  set nodes-in-radius sort other nodes in-radius node-radius
-  foreach connected-nodes [
-    if ( member? ? nodes-in-radius = false )[
-      
+  let nodes-in-radius other nodes in-radius node-radius
+  if ( is-agentset? connected-nodes ) [
+    ask connected-nodes [
+      if ( member? self nodes-in-radius = false and link-neighbor? myself = true )[
+        ask connection-with myself [ kill-link ]
+        decrease-degree
+      ]
     ]
   ]
 end
 
 to set-connected-nodes
-  set connected-nodes sort other nodes in-radius node-radius
+  set connected-nodes other nodes in-radius node-radius
 end
 
 ;;this function can work both with agentsets or agents 
@@ -110,7 +112,7 @@ to connect [ from-node ]
 end
 
 ;;gets called by links only, decrease the nodes degree and kill the link
-to kill-link
+to kill-link  
   ask other-end [ decrease-degree ]
   die
 end
@@ -274,7 +276,7 @@ step-size
 step-size
 1
 100
-1
+8
 1
 1
 NIL
@@ -287,7 +289,7 @@ SWITCH
 148
 all-different
 all-different
-1
+0
 1
 -1000
 
