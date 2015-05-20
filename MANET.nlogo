@@ -16,7 +16,7 @@ to make-halo [ halo-radius ]  ;; node procedure
   ;; be the same color as the turtle it encircles (unless
   ;; you add code to change it
   hatch-halos 1
-  [ set size halo-radius + 2 ;; the +2 its just for visualization purposes
+  [ set size halo-radius + 3 ;; the +3 its just for visualization purposes
     ;; Use an RGB color to make halo three fourths transparent
     set color lput 64 extract-rgb color
     __set-line-thickness 0.2
@@ -81,15 +81,21 @@ to connect [ from-node ]
   
   foreach sort node-list [
     if ( link-neighbor? ? = false ) [
-      ifelse ( node-degree < node-max-degree and ( [get-node-degree] of node ? ) > ( [get-max-node-degree] of node ? ) ) [
-        set node-degree node-degree + 1
-        ask ? [ set node-degree node-degree + 1 ]
+      ifelse ( node-degree < node-max-degree and ( [get-node-degree] of ? ) < ( [get-max-node-degree] of ? ) ) [
+        increase-degree
+        ask ? [ increase-degree ]
         create-connection-with ?
       ][
-        replacement-strategy ?
+        replacement-strategy ?          
       ]
    ]
  ]
+end
+
+;;gets called by links only, decrease the nodes degree and kill the link
+to kill-link
+  ask other-end [ decrease-degree ]
+  die
 end
 
 ;; wrapper function for the replacement strategy
@@ -99,9 +105,23 @@ end
 
 ;;randomly kill strategy
 to random-kill [ node-to-connect ]
-  ask one-of my-connections [ die ]
-  create-connection-with node-to-connect
-  ask node-to-connect [ set node-degree node-degree + 1 ]
+  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
+    ask one-of my-connections [ kill-link ]
+    ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+    create-connection-with node-to-connect
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      ask one-of my-connections [ kill-link ]
+      ask node-to-connect [ increase-degree ]
+      create-connection-with node-to-connect
+    ]
+    [
+      ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+      increase-degree
+      create-connection-with node-to-connect
+    ]
+  ]
 end
 
 to-report get-node-degree
@@ -111,15 +131,25 @@ end
 to-report get-max-node-degree
   report node-max-degree
 end
+
+
+to increase-degree
+  set node-degree node-degree + 1
+end
+
+
+to decrease-degree
+  set node-degree node-degree - 1
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-382
-8
-980
-586
+378
+5
+970
+575
 18
 17
-28.8
+33.32432432432433
 1
 14
 1
@@ -163,7 +193,7 @@ max-degree
 max-degree
 1
 100
-1
+15
 1
 1
 NIL
@@ -178,7 +208,7 @@ nodes-number
 nodes-number
 1
 100
-6
+14
 1
 1
 NIL
@@ -204,8 +234,8 @@ NIL
 BUTTON
 154
 173
-272
-210
+273
+209
 Step
 move step-size\nlink-neighbours
 NIL
@@ -227,7 +257,7 @@ step-size
 step-size
 1
 100
-13
+1
 1
 1
 NIL
@@ -250,7 +280,7 @@ BUTTON
 132
 258
 Go
-move 1\nlink-neighbours
+move step-size\nlink-neighbours
 T
 1
 T
@@ -262,10 +292,10 @@ NIL
 1
 
 BUTTON
-164
-227
-228
-261
+155
+225
+271
+260
 Link
 link-neighbours
 NIL
