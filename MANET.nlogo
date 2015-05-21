@@ -14,7 +14,7 @@ undirected-link-breed [connections connection]
 ;;; Global variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-globals [ max-conn-comp g-component ]
+globals [ max-conn-comp g-component bridges ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
@@ -196,6 +196,24 @@ to get-giant-component
   nw:set-context g-component connections
 end
 
+;; count the bridges in the biggest component of the netork
+to count-bridges
+  get-giant-component
+  set bridges 0
+  let prev-max-conn-comp max-conn-comp
+  ask g-component [
+    foreach sort my-connections [
+      let link-nodes [ link-ends ] of ?
+      ask ? [ die ] ;; remove the link to make the test
+      get-giant-component
+      if prev-max-conn-comp > max-conn-comp [
+        set bridges bridges + 0.5
+      ]
+      ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
+    ]
+  ]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,20 +263,14 @@ to-report count-connections
   report count connections
 end
 
-to-report bridges-count
+to-report bridges-count-percent
   get-giant-component
-  let bridges 0
-  set prev_max_conn_comp max_conn_comp
-  ask g-component [
-    foreach sort my-connections [
-      let link-nodes [ link-ends ] of ?
-      ask ? [ die ] ;; remove the link to make the test
-      get-giant-component
-      if prev_max_conn_comp > max_conn_comp [
-        set bridges bridges + 1
-      ]
-      ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
-    ]
+  count-bridges
+  ifelse max-conn-comp > 1 [
+    report ( ( 2 * bridges ) / ( max-conn-comp * ( max-conn-comp - 1 ) ) )
+  ]
+  [
+    report 0
   ]
 end
 @#$#@#$#@
@@ -291,29 +303,29 @@ ticks
 
 SLIDER
 6
-62
+48
 179
-95
+81
 radius
 radius
 0.01
 1
-0.12
+0.2
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-188
-63
-361
-96
+189
+48
+362
+81
 max-degree
 max-degree
 1
 nodes-number - 1
-4
+13
 1
 1
 NIL
@@ -328,17 +340,17 @@ nodes-number
 nodes-number
 2
 100
-8
+100
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-9
-173
-132
-210
+6
+85
+129
+122
 Setup
 setup
 NIL
@@ -352,10 +364,10 @@ NIL
 1
 
 BUTTON
-154
-173
-273
-209
+135
+85
+254
+121
 Step
 move node-speed
 NIL
@@ -384,21 +396,21 @@ max-pxcor * 2
 HORIZONTAL
 
 SWITCH
-12
-115
-162
-148
+365
+49
+476
+82
 all-different
 all-different
-1
+0
 1
 -1000
 
 BUTTON
-10
-225
-132
-258
+6
+125
+128
+158
 Go
 move node-speed
 T
@@ -412,10 +424,10 @@ NIL
 1
 
 PLOT
-24
-301
-270
-451
+7
+160
+253
+310
 Growth of connected component
 Time
 Size
@@ -430,10 +442,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot (size-connected-component / nodes-number)"
 
 MONITOR
-284
-302
-412
-347
+267
+161
+395
+206
 Giant component size
 size-connected-component
 17
@@ -441,10 +453,10 @@ size-connected-component
 11
 
 MONITOR
-285
-355
-493
-400
+268
+214
+515
+259
 Avg path length of giant component
 avg-path-length
 3
@@ -452,10 +464,10 @@ avg-path-length
 11
 
 PLOT
-24
-457
-270
-607
+7
+316
+253
+466
 Edge Density
 Time
 Edge-Density
@@ -470,10 +482,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot edge-density"
 
 MONITOR
-287
-458
-381
-503
+270
+317
+364
+362
 Connections
 count-connections
 17
@@ -481,26 +493,44 @@ count-connections
 11
 
 MONITOR
-420
-302
-537
-347
+398
+162
+515
+207
 Connectivity (%)
 size-connected-component-percent
-17
+3
 1
 11
 
 MONITOR
-390
-459
-494
-504
+373
+318
+477
+363
 Edge-Density (%)
 edge-density-percent
 3
 1
 11
+
+PLOT
+9
+493
+254
+663
+Bridges
+Time
+Bridges
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot bridges-count-percent"
 
 @#$#@#$#@
 ## WHAT IS IT?
