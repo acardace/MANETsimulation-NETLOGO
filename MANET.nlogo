@@ -7,8 +7,16 @@ extensions [ nw ]
 breed [nodes node]
 breed [halos halo]
 breed [ empty-set ]
+breed [shadow-nodes shadow-node]
+undirected-link-breed [shadow-links shadow-link]
 undirected-link-breed [halolinks halolink]
 undirected-link-breed [connections connection]
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Global variables ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+globals [ max-conn-comp ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
@@ -175,6 +183,21 @@ to random-kill [ node-to-connect ]
   create-connection-with node-to-connect
 end
 
+;; sets the current context as the biggest component of the network
+to get-giant-component
+  nw:set-context nodes connections
+  set max-conn-comp 0
+  let g-component empty-set
+  
+  foreach nw:weak-component-clusters [
+   if count ? > max-conn-comp [
+    set max-conn-comp count ? 
+    set g-component ?
+   ]
+  ] 
+  nw:set-context g-component connections
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -189,42 +212,19 @@ end
 
 ;;size of the giant component
 to-report size-connected-component
-  nw:set-context nodes connections
-  let max-conn-comp 0
-  foreach nw:weak-component-clusters [
-   if count ? > max-conn-comp [
-    set max-conn-comp count ? 
-   ]
-  ]
+  get-giant-component
   report max-conn-comp
 end
 
 ;;size of the giant component % (connectivity)
 to-report size-connected-component-percent
-  nw:set-context nodes connections
-  let max-conn-comp 0
-  foreach nw:weak-component-clusters [
-   if count ? > max-conn-comp [
-    set max-conn-comp count ? 
-   ]
-  ]
+  get-giant-component
   report ( max-conn-comp / nodes-number ) * 100
 end
 
 ;;Reports the average shortest-path length of the giant component
 to-report avg-path-length
-  nw:set-context nodes connections
-  let max-conn-comp 0
-  let g-component empty-set
-  
-  foreach nw:weak-component-clusters [
-   if count ? > max-conn-comp [
-    set max-conn-comp count ? 
-    set g-component ?
-   ]
-  ]
-  
-  nw:set-context g-component connections
+  get-giant-component
   report nw:mean-path-length
 end
 
@@ -241,6 +241,11 @@ end
 
 to-report count-connections
   report count connections
+end
+
+to-report is-bridge?  [ conn ]
+  get-giant-component
+  
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -279,7 +284,7 @@ radius
 radius
 0.01
 1
-0.19
+0.12
 0.01
 1
 NIL
@@ -309,7 +314,7 @@ nodes-number
 nodes-number
 1
 100
-41
+4
 1
 1
 NIL
