@@ -7,16 +7,14 @@ extensions [ nw ]
 breed [nodes node]
 breed [halos halo]
 breed [ empty-set ]
-breed [shadow-nodes shadow-node]
-undirected-link-breed [shadow-links shadow-link]
 undirected-link-breed [halolinks halolink]
 undirected-link-breed [connections connection]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global variables ;;;
+;;; Global variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-globals [ max-conn-comp ]
+globals [ max-conn-comp g-component ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
@@ -187,7 +185,7 @@ end
 to get-giant-component
   nw:set-context nodes connections
   set max-conn-comp 0
-  let g-component empty-set
+  set g-component empty-set
   
   foreach nw:weak-component-clusters [
    if count ? > max-conn-comp [
@@ -208,6 +206,10 @@ end
 
 to-report get-max-node-degree
   report node-max-degree
+end
+
+to-report link-ends
+  report both-ends
 end
 
 ;;size of the giant component
@@ -243,9 +245,21 @@ to-report count-connections
   report count connections
 end
 
-to-report is-bridge?  [ conn ]
+to-report bridges-count
   get-giant-component
-  
+  let bridges 0
+  set prev_max_conn_comp max_conn_comp
+  ask g-component [
+    foreach sort my-connections [
+      let link-nodes [ link-ends ] of ?
+      ask ? [ die ] ;; remove the link to make the test
+      get-giant-component
+      if prev_max_conn_comp > max_conn_comp [
+        set bridges bridges + 1
+      ]
+      ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -312,9 +326,9 @@ SLIDER
 47
 nodes-number
 nodes-number
-1
+2
 100
-4
+8
 1
 1
 NIL
