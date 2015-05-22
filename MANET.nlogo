@@ -203,13 +203,15 @@ to count-bridges
   let prev-max-conn-comp max-conn-comp
   ask g-component [
     foreach sort my-connections [
-      let link-nodes [ link-ends ] of ?
-      ask ? [ die ] ;; remove the link to make the test
-      get-giant-component
-      if prev-max-conn-comp > max-conn-comp [
-        set bridges bridges + 0.5
+      if is-connection? ? [
+        let link-nodes [ link-ends ] of ?
+        ask ? [ die ] ;; remove the link to make the test
+        get-giant-component
+        if prev-max-conn-comp > max-conn-comp [
+          set bridges bridges + 0.5
+        ]
+        ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
       ]
-      ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
     ]
   ]
 end
@@ -263,10 +265,10 @@ to-report count-connections
   report count connections
 end
 
-to-report bridges-count-percent
-  get-giant-component
+to-report get-bridges
   count-bridges
-  ifelse max-conn-comp > 1 [
+  get-giant-component
+  ifelse max-conn-comp > 2 [
     report ( ( 2 * bridges ) / ( max-conn-comp * ( max-conn-comp - 1 ) ) )
   ]
   [
@@ -310,7 +312,7 @@ radius
 radius
 0.01
 1
-0.2
+0.1
 0.01
 1
 NIL
@@ -340,7 +342,7 @@ nodes-number
 nodes-number
 2
 100
-100
+21
 1
 1
 NIL
@@ -402,7 +404,7 @@ SWITCH
 82
 all-different
 all-different
-0
+1
 1
 -1000
 
@@ -515,13 +517,13 @@ edge-density-percent
 11
 
 PLOT
-9
-493
-254
-663
-Bridges
+8
+469
+253
+639
+Bridges (%) in giant-component
 Time
-Bridges
+Bridges (%)
 0.0
 1.0
 0.0
@@ -530,7 +532,36 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot bridges-count-percent"
+"default" 1.0 0 -16777216 true "" "plot get-bridges"
+
+PLOT
+257
+469
+502
+638
+Degree distribution
+Degree
+Nodes
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [get-node-degree] of nodes"
+
+MONITOR
+257
+420
+347
+466
+Bridges (%)
+get-bridges
+3
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
