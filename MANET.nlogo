@@ -21,7 +21,7 @@ globals [ max-conn-comp g-component bridges ]
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;nodes local vars
-nodes-own [ node-radius node-max-degree node-degree connected-nodes node-with-max-degree ]
+nodes-own [ node-radius node-max-degree node-degree connected-nodes node-with-max-degree local-max-conn-comp local-g-component ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -158,6 +158,21 @@ end
 to kill-link
   ask other-end [ decrease-degree ]
   die
+end
+
+;; sets the current context as the component of the network having root-node as a member
+to get-component 
+  nw:set-context [link-neighbors] of self  [connections] of self
+  set local-max-conn-comp 0
+  set local-g-component empty-set
+  
+  foreach nw:weak-component-clusters [
+   if count ? > local-max-conn-comp [
+    set local-max-conn-comp count ? 
+    set local-g-component ?
+   ]
+  ] 
+  nw:set-context local-g-component connections
 end
 
 ;; sets the current context as the biggest component of the network
@@ -321,14 +336,14 @@ end
 
 to-report is-bridge? [ conn ]
   let result false
-  get-giant-component
-  let prev-max-conn-comp max-conn-comp
-  ask g-component [
+  get-component
+  let prev-max-conn-comp local-max-conn-comp
+  ask local-g-component [
       if is-connection? conn [
         let link-nodes [ link-ends ] of conn
         ask conn [ die ] ;; remove the link to make the test
-        get-giant-component
-        if prev-max-conn-comp > max-conn-comp [
+        get-component
+        if prev-max-conn-comp > local-max-conn-comp [
           set result true
         ]
         ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
