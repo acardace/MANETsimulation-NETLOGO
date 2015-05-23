@@ -1,5 +1,3 @@
-extensions [ nw ]
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Breeds definitions ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -14,14 +12,17 @@ undirected-link-breed [connections connection]
 ;;; Global variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-globals [ max-conn-comp g-component bridges ]
+globals [ giant-component-nodes-number giant-component bridges ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;nodes local vars
-nodes-own [ node-radius node-max-degree node-degree connected-nodes node-with-max-degree local-max-conn-comp local-g-component ]
+nodes-own [ node-radius node-max-degree node-degree 
+  connected-nodes node-with-max-degree 
+  local-component-nodes-number local-component
+  conn-to-kill visited ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -45,8 +46,12 @@ to setup
     ]
     set node-degree 0 
     set connected-nodes []
+    set visited false
     make-halo node-radius
   ]
+  set giant-component-nodes-number 0
+  set giant-component empty-set
+  set bridges 0
   reset-ticks
 end
 
@@ -119,7 +124,7 @@ to disconnect-not-in-radius
   if ( is-agentset? connected-nodes ) [
     ask connected-nodes [
       if ( member? self nodes-in-radius = false and link-neighbor? myself = true )[
-        ask connection-with myself [ kill-link ]
+        ask connection-with myself [ kill-connection ]
         decrease-degree
       ]
     ]
@@ -154,54 +159,82 @@ to connect [ from-node ]
  ]
 end
 
-;;gets called by links only, decreases the node's degree and kill the link
-to kill-link
+;;gets called by connections only, decreases the node's degree and kill the link
+to kill-connection
   ask other-end [ decrease-degree ]
   die
 end
 
-;; sets the current context as the component of the network having root-node as a member
-to get-component 
-  nw:set-context [link-neighbors] of self  [connections] of self
-  set local-max-conn-comp 0
-  set local-g-component empty-set
+;; computes all the reachable nodes by root-node and puts them in an agentset
+to get-component [root-node]
+  if self = root-node [
+    set local-component-nodes-number 1
+    set local-component []
+    set local-component fput self local-component
+    ask nodes [ set visited false ]
+    set visited true
+  ]
   
-  foreach nw:weak-component-clusters [
-   if count ? > local-max-conn-comp [
-    set local-max-conn-comp count ? 
-    set local-g-component ?
-   ]
+  ;;DFS
+  ask my-connections [
+    ask other-end [
+      if visited = false [
+        set visited true
+        ask root-node [ 
+          set local-component fput myself local-component 
+          set local-component-nodes-number local-component-nodes-number + 1       
+        ]
+     get-component root-node 
+     ]
+    ]
+  ]
+  
+  ;;converting to agentset
+  if self = root-node[
+    set local-component turtle-set local-component
   ] 
-  nw:set-context local-g-component connections
 end
 
 ;; sets the current context as the biggest component of the network
 to get-giant-component
-  nw:set-context nodes connections
-  set max-conn-comp 0
-  set g-component empty-set
+  set giant-component-nodes-number 0
+  let temp-giant-component empty-set
+  set giant-component []
   
-  foreach nw:weak-component-clusters [
-   if count ? > max-conn-comp [
-    set max-conn-comp count ? 
-    set g-component ?
-   ]
-  ] 
-  nw:set-context g-component connections
+  ;;ask all the nodes to compute their local component and add them to a list
+  ask nodes [
+   get-component self
+   set giant-component fput local-component giant-component 
+  ]
+  
+  set giant-component remove-duplicates giant-component
+  
+  ;; count the number of nodes of each component
+  foreach giant-component [
+    let counter 0
+    foreach sort ? [
+      set counter counter + 1
+    ]
+    if counter > giant-component-nodes-number [
+     set giant-component-nodes-number counter
+     set temp-giant-component ?
+    ]
+  ]
+  set giant-component temp-giant-component
 end
 
-;; count the bridges in the biggest component of the netork
+;; count the bridges in the biggest component of the network
 to count-bridges
   get-giant-component
   set bridges 0
-  let prev-max-conn-comp max-conn-comp
-  ask g-component [
+  let prev-local-component-nodes-number giant-component-nodes-number
+  ask giant-component [
     foreach sort my-connections [
       if is-connection? ? [
         let link-nodes [ link-ends ] of ?
         ask ? [ die ] ;; remove the link to make the test
         get-giant-component
-        if prev-max-conn-comp > max-conn-comp [
+        if prev-local-component-nodes-number > giant-component-nodes-number [
           set bridges bridges + 0.5
         ]
         ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
@@ -233,46 +266,50 @@ to replacement-strategy [ node-to-connect ]
   if strategy = "max-degree-kill" [
     max-degree-kill node-to-connect
   ]
+  if strategy = "random-no-bridge-kill" [
+    random-no-bridge-kill node-to-connect
+  ]
 end
 
 ;;randomly kill strategy
 to random-kill [ node-to-connect ]
   ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
-    ask one-of my-connections [ kill-link ]
-    ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+    ask one-of my-connections [ kill-connection ]
+    ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      ask one-of my-connections [ kill-link ]
+      ask one-of my-connections [ kill-connection ]
       ask node-to-connect [ increase-degree ]
     ]
     [
-      ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+      ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
       increase-degree
     ]
   ]
   create-connection-with node-to-connect
 end
 
+;;this strategy kills the connection with the node having the maximum degree
 to max-degree-kill [ node-to-connect ]
   find-node-with-max-degree
   
   ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
-    ask link-with node-with-max-degree [ kill-link ]
+    ask link-with node-with-max-degree [ kill-connection ]
     ask node-to-connect [
       find-node-with-max-degree
-      ask link-with node-with-max-degree [ kill-link ]
+      ask link-with node-with-max-degree [ kill-connection ]
     ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      ask link-with node-with-max-degree [ kill-link ]
+      ask link-with node-with-max-degree [ kill-connection ]
       ask node-to-connect [ increase-degree ]
     ]
     [
       ask node-to-connect [
         find-node-with-max-degree
-        ask link-with node-with-max-degree [ kill-link ]
+        ask link-with node-with-max-degree [ kill-connection ]
       ]
       increase-degree
     ]
@@ -280,6 +317,38 @@ to max-degree-kill [ node-to-connect ]
   create-connection-with node-to-connect
 end
 
+;;this strategy kills a random connection as long as it is not a bridge
+to random-no-bridge-kill [ node-to-connect ]
+  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [    
+    choose-no-bridge
+    ask conn-to-kill [ kill-connection ]
+    ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      ask one-of my-connections [ kill-connection ]
+      ask node-to-connect [ increase-degree ]
+    ]
+    [
+      ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
+      increase-degree
+    ]
+  ]
+  create-connection-with node-to-connect
+end
+
+;;choose a non-bridge connection as the one to be killed
+to choose-no-bridge
+  set conn-to-kill 0
+  foreach sort my-connections [
+     if is-bridge? ? = false [
+      set conn-to-kill ?
+     ]
+    ]
+  if conn-to-kill = 0[
+    set conn-to-kill one-of my-connections
+  ]
+end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -299,19 +368,13 @@ end
 ;;size of the giant component
 to-report size-connected-component
   get-giant-component
-  report max-conn-comp
+  report giant-component-nodes-number
 end
 
 ;;size of the giant component % (connectivity)
 to-report size-connected-component-percent
   get-giant-component
-  report ( max-conn-comp / nodes-number ) * 100
-end
-
-;;Reports the average shortest-path length of the giant component
-to-report avg-path-length
-  get-giant-component
-  report nw:mean-path-length
+  report ( giant-component-nodes-number / nodes-number ) * 100
 end
 
 ;;Reports the edge density
@@ -326,8 +389,8 @@ end
 to-report get-bridges
   count-bridges
   get-giant-component
-  ifelse max-conn-comp > 1 [
-    report ( ( 2 * bridges ) / ( max-conn-comp * ( max-conn-comp - 1 ) ) )
+  ifelse giant-component-nodes-number > 1 [
+    report ( ( 2 * bridges ) / ( giant-component-nodes-number * ( giant-component-nodes-number - 1 ) ) )
   ]
   [
     report 0
@@ -336,14 +399,14 @@ end
 
 to-report is-bridge? [ conn ]
   let result false
-  get-component
-  let prev-max-conn-comp local-max-conn-comp
-  ask local-g-component [
+  get-component self
+  let prev-local-component-nodes-number local-component-nodes-number
+  ask local-component [
       if is-connection? conn [
         let link-nodes [ link-ends ] of conn
         ask conn [ die ] ;; remove the link to make the test
-        get-component
-        if prev-max-conn-comp > local-max-conn-comp [
+        get-component self
+       if prev-local-component-nodes-number > local-component-nodes-number [
           set result true
         ]
         ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
@@ -388,7 +451,7 @@ radius
 radius
 0.01
 1
-0.29
+0.2
 0.01
 1
 NIL
@@ -403,7 +466,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-5
+3
 1
 1
 NIL
@@ -418,7 +481,7 @@ nodes-number
 nodes-number
 2
 100
-17
+7
 1
 1
 NIL
@@ -530,17 +593,6 @@ size-connected-component
 1
 11
 
-MONITOR
-268
-214
-543
-259
-Avg path length of giant component
-avg-path-length
-3
-1
-11
-
 PLOT
 7
 316
@@ -582,9 +634,9 @@ size-connected-component-percent
 11
 
 MONITOR
-373
+368
 318
-477
+472
 363
 Edge-Density (%)
 edge-density * 100
@@ -670,12 +722,12 @@ NIL
 CHOOSER
 385
 113
-541
+598
 158
 strategy
 strategy
-"random-kill" "max-degree-kill"
-1
+"random-kill" "max-degree-kill" "random-no-bridge-kill"
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
