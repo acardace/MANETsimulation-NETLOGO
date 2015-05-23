@@ -318,6 +318,24 @@ to-report get-bridges
     report 0
   ]
 end
+
+to-report is-bridge? [ conn ]
+  let result false
+  get-giant-component
+  let prev-max-conn-comp max-conn-comp
+  ask g-component [
+      if is-connection? conn [
+        let link-nodes [ link-ends ] of conn
+        ask conn [ die ] ;; remove the link to make the test
+        get-giant-component
+        if prev-max-conn-comp > max-conn-comp [
+          set result true
+        ]
+        ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
+      ]
+  ]
+  report result
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 627
