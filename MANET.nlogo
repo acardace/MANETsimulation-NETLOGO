@@ -21,7 +21,7 @@ globals [ max-conn-comp g-component bridges ]
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;nodes local vars
-nodes-own [ node-radius node-max-degree node-degree connected-nodes ]
+nodes-own [ node-radius node-max-degree node-degree connected-nodes node-with-max-degree ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -110,7 +110,7 @@ end
 ;;link the node with node in its radius
 to link-neighbours
   ask nodes[   
-    connect ( other nodes in-radius node-radius ) ;; connect the node prior to some replacement strategy
+    connect other nodes in-radius node-radius ;; connect the node prior to some replacement strategy
   ]
 end
 
@@ -154,8 +154,8 @@ to connect [ from-node ]
  ]
 end
 
-;;gets called by links only, decrease the nodes degree and kill the link
-to kill-link  
+;;gets called by links only, decreases the node's degree and kill the link
+to kill-link
   ask other-end [ decrease-degree ]
   die
 end
@@ -195,13 +195,29 @@ to count-bridges
   ]
 end
 
+to find-node-with-max-degree
+  let degree-counter 0  
+  ;; determining which is the node with the maximum degree
+  foreach sort connection-neighbors [ 
+    if [get-node-degree] of ? > degree-counter  [
+      set degree-counter [get-node-degree] of ?
+      set node-with-max-degree ?
+    ]
+  ]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Strategies Procedures ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; wrapper function for the replacement strategy
 to replacement-strategy [ node-to-connect ]
-  random-kill node-to-connect
+  if strategy = "random-kill" [
+    random-kill node-to-connect
+  ]
+  if strategy = "max-degree-kill" [
+    max-degree-kill node-to-connect
+  ]
 end
 
 ;;randomly kill strategy
@@ -223,6 +239,31 @@ to random-kill [ node-to-connect ]
   create-connection-with node-to-connect
 end
 
+to max-degree-kill [ node-to-connect ]
+  find-node-with-max-degree
+  
+  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
+    ask link-with node-with-max-degree [ kill-link ]
+    ask node-to-connect [
+      find-node-with-max-degree
+      ask link-with node-with-max-degree [ kill-link ]
+    ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      ask link-with node-with-max-degree [ kill-link ]
+      ask node-to-connect [ increase-degree ]
+    ]
+    [
+      ask node-to-connect [
+        find-node-with-max-degree
+        ask link-with node-with-max-degree [ kill-link ]
+      ]
+      increase-degree
+    ]
+  ]
+  create-connection-with node-to-connect
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
@@ -314,7 +355,7 @@ radius
 radius
 0.01
 1
-0.1
+0.29
 0.01
 1
 NIL
@@ -329,7 +370,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-2
+5
 1
 1
 NIL
@@ -344,7 +385,7 @@ nodes-number
 nodes-number
 2
 100
-6
+17
 1
 1
 NIL
@@ -393,7 +434,7 @@ node-speed
 node-speed
 1
 max-pxcor * 2
-36
+1
 1
 1
 (number of steps)
@@ -459,7 +500,7 @@ size-connected-component
 MONITOR
 268
 214
-515
+543
 259
 Avg path length of giant component
 avg-path-length
@@ -499,7 +540,7 @@ count-connections
 MONITOR
 398
 162
-515
+542
 207
 Connectivity (%)
 size-connected-component-percent
@@ -571,7 +612,7 @@ INPUTBOX
 541
 73
 run-length
-200
+500
 1
 0
 Number
@@ -591,6 +632,16 @@ NIL
 NIL
 NIL
 NIL
+1
+
+CHOOSER
+385
+113
+541
+158
+strategy
+strategy
+"random-kill" "max-degree-kill"
 1
 
 @#$#@#$#@
