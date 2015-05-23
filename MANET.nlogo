@@ -82,8 +82,15 @@ to move [ moves-no ]
       disconnect-not-in-radius
       set-connected-nodes
     ]
-    link-neighbours
-    tick
+  ]
+  link-neighbours
+  tick
+end
+
+;; Move procedure which specifies how long the run must be ( in terms of ticks )
+to run-sim [ moves-no ]
+  repeat run-length [
+    move moves-no
   ]
 end
 
@@ -153,34 +160,6 @@ to kill-link
   die
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Strategies Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; wrapper function for the replacement strategy
-to replacement-strategy [ node-to-connect ]
-  random-kill node-to-connect
-end
-
-;;randomly kill strategy
-to random-kill [ node-to-connect ]
-  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
-    ask one-of my-connections [ kill-link ]
-    ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
-  ]
-  [
-    ifelse ( node-degree = node-max-degree ) [
-      ask one-of my-connections [ kill-link ]
-      ask node-to-connect [ increase-degree ]
-    ]
-    [
-      ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
-      increase-degree
-    ]
-  ]
-  create-connection-with node-to-connect
-end
-
 ;; sets the current context as the biggest component of the network
 to get-giant-component
   nw:set-context nodes connections
@@ -215,6 +194,35 @@ to count-bridges
     ]
   ]
 end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Strategies Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; wrapper function for the replacement strategy
+to replacement-strategy [ node-to-connect ]
+  random-kill node-to-connect
+end
+
+;;randomly kill strategy
+to random-kill [ node-to-connect ]
+  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
+    ask one-of my-connections [ kill-link ]
+    ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      ask one-of my-connections [ kill-link ]
+      ask node-to-connect [ increase-degree ]
+    ]
+    [
+      ask node-to-connect [ ask one-of my-connections [ kill-link ] ]
+      increase-degree
+    ]
+  ]
+  create-connection-with node-to-connect
+end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
@@ -255,12 +263,6 @@ to-report edge-density
   report ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) )
 end
 
-
-;;Reports the edge density %
-to-report edge-density-percent
-  report ( ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) ) ) * 100
-end
-
 to-report count-connections
   report count connections
 end
@@ -268,7 +270,7 @@ end
 to-report get-bridges
   count-bridges
   get-giant-component
-  ifelse max-conn-comp > 2 [
+  ifelse max-conn-comp > 1 [
     report ( ( 2 * bridges ) / ( max-conn-comp * ( max-conn-comp - 1 ) ) )
   ]
   [
@@ -327,7 +329,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-13
+2
 1
 1
 NIL
@@ -342,7 +344,7 @@ nodes-number
 nodes-number
 2
 100
-21
+6
 1
 1
 NIL
@@ -391,17 +393,17 @@ node-speed
 node-speed
 1
 max-pxcor * 2
-1
+36
 1
 1
 (number of steps)
 HORIZONTAL
 
 SWITCH
-365
-49
-476
-82
+268
+126
+379
+159
 all-different
 all-different
 1
@@ -411,11 +413,11 @@ all-different
 BUTTON
 6
 125
-128
-158
-Go
-move node-speed
-T
+129
+159
+Run simulation
+run-sim node-speed
+NIL
 1
 T
 OBSERVER
@@ -511,7 +513,7 @@ MONITOR
 477
 363
 Edge-Density (%)
-edge-density-percent
+edge-density * 100
 3
 1
 11
@@ -553,15 +555,43 @@ PENS
 "default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [get-node-degree] of nodes"
 
 MONITOR
-257
-420
-347
-466
+270
+419
+360
+464
 Bridges (%)
-get-bridges
+get-bridges * 100
 3
 1
 11
+
+INPUTBOX
+416
+13
+541
+73
+run-length
+200
+1
+0
+Number
+
+BUTTON
+137
+124
+254
+158
+Go
+move node-speed
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
