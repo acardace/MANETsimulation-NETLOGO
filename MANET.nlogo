@@ -277,17 +277,20 @@ to replacement-strategy [ node-to-connect ]
   if strategy = "max-degree-kill" [
     max-degree-kill node-to-connect
   ]
-  if strategy = "random-no-bridge-kill" [
+  if strategy = "no-bridge-kill (random)" [
     no-bridge-kill node-to-connect 0
   ]
-  if strategy = "max-degree-no-bridge-kill" [
+  if strategy = "no-bridge-kill (max-degree)" [
     no-bridge-kill node-to-connect 1
   ]
-  if strategy = "most-distant-no-bridge-kill" [
+  if strategy = "no-bridge-kill (most-distant)" [
     no-bridge-kill node-to-connect 2
   ]
-  if strategy = "kill-most-distant" [
-    kill-most-distant node-to-connect
+  if strategy = "most-distant-kill" [
+    most-distant-kill node-to-connect
+  ]
+  if strategy = "most-distant-no-bridge-kill" [
+    most-distant-no-bridge-kill node-to-connect
   ]
 end
 
@@ -369,7 +372,7 @@ to kill-no-bridge [ other? ]
     ;;according to the value of other? takes a decision in case it doesnt find any node no-bridge connection to kill
     ;; other? = 0 -> kill random node
     ;; other? = 1 -> kill the connection having the node with the maximum degree
-    ;; other? = 2 -> kill the connection of the most distant node 
+    ;; other? = 2 -> kill the connection of the most distant node
     if other? = 0 [
       ask one-of my-connections [ kill-connection ]
     ]
@@ -384,7 +387,7 @@ to kill-no-bridge [ other? ]
 end
 
 ;;this strategy kills the connection with the most distant node
-to kill-most-distant [ node-to-connect ]
+to most-distant-kill [ node-to-connect ]
   ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
     find-kill-most-distant
     ask node-to-connect [ find-kill-most-distant ]
@@ -402,18 +405,43 @@ to kill-most-distant [ node-to-connect ]
   create-connection-with node-to-connect [ set active true ]
 end
 
-;;auxiliary procedure for "kill-most-distant"
+;;auxiliary procedure for "most-distant-kill"
 to find-kill-most-distant
   let max-distance -1
-  let node-to-kill empty-set
-  foreach sort connection-neighbors [
-   if distance ? > max-distance [
-     set max-distance distance ?
-     set node-to-kill ?
-   ]
-  ]
-  ask node-to-kill [ kill-connection ]
+  let conn-to-kill connection-with first sort-by [ distance ?1 > distance ?2 ] connection-neighbors ;;set conn-to-kill as the connection with the most distant node
+  ask conn-to-kill [ kill-connection ]
 end
+
+;;this strategy kills a no-bridge connection with the most distant node
+to most-distant-no-bridge-kill [ node-to-connect ]
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
+    kill-no-bridge-most-distant
+    ask node-to-connect [ kill-no-bridge-most-distant ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      kill-no-bridge-most-distant
+      ask node-to-connect [ increase-degree ]
+    ]
+    [
+      ask node-to-connect [ kill-no-bridge-most-distant ]
+      increase-degree
+    ]
+  ]
+  create-connection-with node-to-connect [ set active true ]
+end
+
+;;auxiliary procedure for "most-distant-no-bridge-kill"
+to kill-no-bridge-most-distant
+  let set-distant-nodes sort-by [ distance ?1 > distance ?2 ] connection-neighbors ;;set of nodes ordered by decreasing distance
+  let conn-to-kill connection-with first set-distant-nodes
+  foreach set-distant-nodes[
+   if is-bridge? ? = false [
+     set conn-to-kill connection-with ?
+   ]  
+  ]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -482,7 +510,7 @@ radius
 radius
 1
 100
-11
+15
 1
 1
 %
@@ -497,7 +525,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-4
+5
 1
 1
 NIL
@@ -512,7 +540,7 @@ nodes-number
 nodes-number
 2
 100
-40
+26
 1
 1
 NIL
@@ -753,12 +781,12 @@ NIL
 CHOOSER
 384
 115
-602
+644
 161
 strategy
 strategy
-"random-kill" "max-degree-kill" "random-no-bridge-kill" "most-distant-no-bridge-kill" "max-degree-no-bridge-kill" "kill-most-distant"
-3
+"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
