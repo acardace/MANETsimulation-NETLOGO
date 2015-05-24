@@ -448,6 +448,7 @@ to kill-no-bridge-most-distant
      set conn-to-kill connection-with ?
    ]  
   ]
+  ask conn-to-kill [ kill-connection ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -455,7 +456,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report edge-density
-  report ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) )
+  report ( 2 * count connections ) / ( nodes-number * ( max-degree ) )
 end
 
 to-report get-bridges
@@ -518,7 +519,7 @@ radius
 radius
 1
 100
-11
+40
 1
 1
 %
@@ -533,7 +534,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-5
+1
 1
 1
 NIL
@@ -548,7 +549,7 @@ nodes-number
 nodes-number
 2
 100
-100
+42
 1
 1
 NIL
@@ -703,8 +704,8 @@ Connectivity (%)
 MONITOR
 368
 318
-472
-363
+473
+364
 Edge-Density (%)
 edge-density * 100
 3
@@ -764,7 +765,7 @@ INPUTBOX
 508
 113
 run-length
-1000
+500
 1
 0
 Number
@@ -803,7 +804,7 @@ SWITCH
 114
 export-plots
 export-plots
-0
+1
 1
 -1000
 
