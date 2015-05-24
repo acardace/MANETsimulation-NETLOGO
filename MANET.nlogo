@@ -103,6 +103,14 @@ to move [ stop-sim? ]
   tick
   
   if ( stop-sim? = true ) and ( ticks >= run-length )[
+    if export-plots = true [
+      let dir "plots/"
+      export-plot "Growth of connected component" ( word dir "growth-conn-comp-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Edge Density" ( word dir "edge-density-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Degree distribution" ( word dir "degree-distribution-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+    ]
+    
     stop
   ]
 end
@@ -510,7 +518,7 @@ radius
 radius
 1
 100
-15
+11
 1
 1
 %
@@ -540,7 +548,7 @@ nodes-number
 nodes-number
 2
 100
-26
+100
 1
 1
 NIL
@@ -682,9 +690,9 @@ count connections
 11
 
 MONITOR
-398
+399
 162
-542
+543
 207
 Connectivity (%)
 (giant-component-nodes-number / nodes-number) * 100
@@ -751,12 +759,12 @@ get-bridges * 100
 11
 
 INPUTBOX
-365
-14
-490
-74
+383
+53
+508
+113
 run-length
-500
+1000
 1
 0
 Number
@@ -787,6 +795,17 @@ strategy
 strategy
 "random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
 2
+
+SWITCH
+510
+80
+637
+114
+export-plots
+export-plots
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
