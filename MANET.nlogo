@@ -44,14 +44,14 @@ to setup
   ask nodes [ ;; make the turtle initial position random to spread them out on the torus
     setxy random-xcor random-ycor
     ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
-      set node-radius  ( (random-float radius) + 0.01 ) * max-pxcor * 2
+      set node-radius ( (random radius ) + 1 ) / 100 * max-pxcor * 2
       set node-max-degree ( (random max-degree) + 1 )
-      set node-speed (random node-velocity) + 1
+      set node-speed ( (random node-velocity ) + 1 ) / 100 * max-pxcor * 2
     ]
     [
-      set node-radius radius * max-pxcor * 2
+      set node-radius radius / 100 * max-pxcor * 2
       set node-max-degree max-degree
-      set node-speed node-velocity
+      set node-speed node-velocity / 100 * max-pxcor * 2
     ]
     make-halo node-radius
     ;setting local variables
@@ -74,7 +74,7 @@ to make-halo [ halo-radius ]  ;; node procedure
   [ set size halo-radius + 4 ;; the + 4 it's just for visualization reasons
     ;; Use an RGB color to make halo three fourths transparent
     set color lput 64 extract-rgb color
-    __set-line-thickness 0.2
+    __set-line-thickness 0.3
     ;; We create an invisible undirected link from the node
     ;; to the halo.  Using tie means that whenever the
     ;; runner moves, the halo moves with it.
@@ -395,10 +395,10 @@ end
 GRAPHICS-WINDOW
 627
 5
-1238
-604
+1239
+632
 18
-17
+18
 16.243243243243242
 1
 14
@@ -411,8 +411,8 @@ GRAPHICS-WINDOW
 1
 -18
 18
--17
-17
+-18
+18
 0
 0
 1
@@ -426,12 +426,12 @@ SLIDER
 81
 radius
 radius
-0.01
 1
-0.2
-0.01
+100
+10
 1
-NIL
+1
+%
 HORIZONTAL
 
 SLIDER
@@ -443,7 +443,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-5
+4
 1
 1
 NIL
@@ -458,7 +458,7 @@ nodes-number
 nodes-number
 2
 100
-15
+20
 1
 1
 NIL
@@ -501,16 +501,16 @@ NIL
 SLIDER
 189
 13
-467
+363
 47
 node-velocity
 node-velocity
 1
-max-pxcor * 2
-36
+100
+20
 1
 1
-(number of steps)
+%
 HORIZONTAL
 
 SWITCH
@@ -669,9 +669,9 @@ bridges * 100
 11
 
 INPUTBOX
-470
+365
 14
-595
+490
 74
 run-length
 500
@@ -704,7 +704,7 @@ CHOOSER
 strategy
 strategy
 "random-kill" "max-degree-kill" "random-no-bridge-kill"
-2
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
