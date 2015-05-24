@@ -22,7 +22,10 @@ globals [ giant-component-nodes-number giant-component bridges ]
 nodes-own [ node-radius node-max-degree node-degree 
   connected-nodes node-with-max-degree 
   local-component-nodes-number local-component
-  conn-to-kill visited ]
+  visited ]
+
+;; to be used for bridge-detection
+connections-own [ active ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -47,6 +50,8 @@ to setup
     set node-degree 0 
     set connected-nodes []
     set visited false
+    set local-component []
+    set local-component-nodes-number 0
     make-halo node-radius
   ]
   set giant-component-nodes-number 0
@@ -136,14 +141,14 @@ to set-connected-nodes
 end
 
 ;;this function can work both with agentsets or agents 
-to connect [ from-node ]  
+to connect [ to-node ]  
   let node-list []
   
-  ifelse ( is-node? from-node = true )[
-    set node-list lput from-node node-list
+  ifelse ( is-node? to-node = true )[
+    set node-list lput to-node node-list
   ]
   [
-    set node-list from-node
+    set node-list to-node
   ]
   
   foreach sort node-list [
@@ -151,7 +156,7 @@ to connect [ from-node ]
       ifelse ( node-degree < node-max-degree and ( [get-node-degree] of ? ) < ( [get-max-node-degree] of ? ) ) [
         increase-degree
         ask ? [ increase-degree ]
-        create-connection-with ?
+        create-connection-with ? [ set active true ]
       ][
         replacement-strategy ?          
       ]
@@ -166,17 +171,21 @@ to kill-connection
 end
 
 ;; computes all the reachable nodes by root-node and puts them in an agentset
-to get-component [root-node]
+;; if giant-computation? is set then this has been called from "get-giant-component"
+to get-component [root-node giant-computation?]
   if self = root-node [
     set local-component-nodes-number 1
     set local-component []
     set local-component fput self local-component
-    ask nodes [ set visited false ]
+    
+    if giant-computation? = false [
+      ask nodes [ set visited false ]
+    ]   
     set visited true
   ]
   
   ;;DFS
-  ask my-connections [
+  ask my-connections with [ active = true ] [
     ask other-end [
       if visited = false [
         set visited true
@@ -184,40 +193,38 @@ to get-component [root-node]
           set local-component fput myself local-component 
           set local-component-nodes-number local-component-nodes-number + 1       
         ]
-     get-component root-node 
+     get-component root-node giant-computation?
      ]
     ]
   ]
-  
-  ;;converting to agentset
-  if self = root-node[
-    set local-component turtle-set local-component
-  ] 
 end
 
 ;; sets the current context as the biggest component of the network
 to get-giant-component
-  set giant-component-nodes-number 0
-  let temp-giant-component empty-set
+  set giant-component-nodes-number 1
+  let temp-giant-component one-of nodes
   set giant-component []
   
+  ;;set all nodes as not visited
+  ask nodes [ set visited false ]
+  
   ;;ask all the nodes to compute their local component and add them to a list
-  ask nodes [
-   get-component self
-   set giant-component fput local-component giant-component 
+  foreach sort nodes [
+    if [visited] of ? = false [
+     ask ? [ get-component self true ]
+     ask ? [ set giant-component fput local-component giant-component ]
+    ]
   ]
   
   set giant-component remove-duplicates giant-component
   
   ;; count the number of nodes of each component
   foreach giant-component [
-    let counter 0
-    foreach sort ? [
-      set counter counter + 1
-    ]
-    if counter > giant-component-nodes-number [
-     set giant-component-nodes-number counter
-     set temp-giant-component ?
+    if is-list? ? = true [   
+      if length ? > giant-component-nodes-number [
+        set giant-component-nodes-number length ?
+        set temp-giant-component ?
+      ]
     ]
   ]
   set giant-component temp-giant-component
@@ -228,8 +235,8 @@ to count-bridges
   get-giant-component
   set bridges 0
   let prev-local-component-nodes-number giant-component-nodes-number
-  ask giant-component [
-    foreach sort my-connections [
+  foreach giant-component [
+    foreach sort [my-connections] of ?  [
       if is-connection? ? [
         let link-nodes [ link-ends ] of ?
         ask ? [ die ] ;; remove the link to make the test
@@ -237,7 +244,7 @@ to count-bridges
         if prev-local-component-nodes-number > giant-component-nodes-number [
           set bridges bridges + 0.5
         ]
-        ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
+        ask one-of link-nodes [ create-connection-with one-of other link-nodes [ set active true ] ]  ;; re-create same link
       ]
     ]
   ]
@@ -287,7 +294,7 @@ to random-kill [ node-to-connect ]
       increase-degree
     ]
   ]
-  create-connection-with node-to-connect
+  create-connection-with node-to-connect [ set active true ]
 end
 
 ;;this strategy kills the connection with the node having the maximum degree
@@ -314,15 +321,14 @@ to max-degree-kill [ node-to-connect ]
       increase-degree
     ]
   ]
-  create-connection-with node-to-connect
+  create-connection-with node-to-connect [ set active true ]
 end
 
 ;;this strategy kills a random connection as long as it is not a bridge
 to random-no-bridge-kill [ node-to-connect ]
   ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [    
-    choose-no-bridge
-    ask conn-to-kill [ kill-connection ]
-    ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
+    kill-no-bridge
+    ask node-to-connect [ kill-no-bridge ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
@@ -334,19 +340,20 @@ to random-no-bridge-kill [ node-to-connect ]
       increase-degree
     ]
   ]
-  create-connection-with node-to-connect
+  create-connection-with node-to-connect [ set active true ]
 end
 
-;;choose a non-bridge connection as the one to be killed
-to choose-no-bridge
-  set conn-to-kill 0
+;;kills a non-bridge connection
+to kill-no-bridge
+  let flag false
   foreach sort my-connections [
-     if is-bridge? ? = false [
-      set conn-to-kill ?
+     if is-bridge? ? = false and flag = false [
+       set flag true
+       ask ? [ kill-connection ]
      ]
     ]
-  if conn-to-kill = 0[
-    set conn-to-kill one-of my-connections
+  if flag = false[
+    ask one-of my-connections [ kill-connection ]
   ]
 end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -371,12 +378,6 @@ to-report size-connected-component
   report giant-component-nodes-number
 end
 
-;;size of the giant component % (connectivity)
-to-report size-connected-component-percent
-  get-giant-component
-  report ( giant-component-nodes-number / nodes-number ) * 100
-end
-
 ;;Reports the edge density
 to-report edge-density
   report ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) )
@@ -399,18 +400,15 @@ end
 
 to-report is-bridge? [ conn ]
   let result false
-  get-component self
+  get-component self false
   let prev-local-component-nodes-number local-component-nodes-number
-  ask local-component [
-      if is-connection? conn [
-        let link-nodes [ link-ends ] of conn
-        ask conn [ die ] ;; remove the link to make the test
-        get-component self
-       if prev-local-component-nodes-number > local-component-nodes-number [
-          set result true
-        ]
-        ask one-of link-nodes [ create-connection-with one-of other link-nodes ]  ;; re-create same link
-      ]
+  if is-connection? conn [
+    ask conn [ set active false ] ;; disable the link to make the test
+    get-component self false
+    if prev-local-component-nodes-number > local-component-nodes-number [
+      set result true
+    ]
+    ask conn [ set active true ] ;; re-enable the link
   ]
   report result
 end
@@ -466,7 +464,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-3
+5
 1
 1
 NIL
@@ -481,7 +479,7 @@ nodes-number
 nodes-number
 2
 100
-7
+15
 1
 1
 NIL
@@ -585,8 +583,8 @@ PENS
 MONITOR
 267
 161
-395
-206
+396
+207
 Giant component size
 size-connected-component
 17
@@ -628,7 +626,7 @@ MONITOR
 542
 207
 Connectivity (%)
-size-connected-component-percent
+(size-connected-component / nodes-number) * 100
 3
 1
 11
@@ -660,7 +658,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot get-bridges"
+"default" 1.0 0 -16777216 true "" "plot 0"
 
 PLOT
 257
@@ -686,7 +684,7 @@ MONITOR
 360
 464
 Bridges (%)
-get-bridges * 100
+0 * 100
 3
 1
 11
