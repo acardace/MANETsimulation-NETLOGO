@@ -278,7 +278,13 @@ to replacement-strategy [ node-to-connect ]
     max-degree-kill node-to-connect
   ]
   if strategy = "random-no-bridge-kill" [
-    random-no-bridge-kill node-to-connect
+    no-bridge-kill node-to-connect true
+  ]
+  if strategy = "max-degree-no-bridge-kill" [
+    no-bridge-kill node-to-connect false
+  ]
+  if strategy = "kill-most-distant" [
+    kill-most-distant node-to-connect
   ]
 end
 
@@ -329,18 +335,18 @@ to max-degree-kill [ node-to-connect ]
 end
 
 ;;this strategy kills a random connection as long as it is not a bridge
-to random-no-bridge-kill [ node-to-connect ]
+to no-bridge-kill [ node-to-connect random? ]
   ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
-    kill-no-bridge
-    ask node-to-connect [ kill-no-bridge ]
+    kill-no-bridge random?
+    ask node-to-connect [ kill-no-bridge random? ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      kill-no-bridge
+      kill-no-bridge random?
       ask node-to-connect [ increase-degree ]
     ]
     [
-      ask node-to-connect [ kill-no-bridge ]
+      ask node-to-connect [ kill-no-bridge random? ]
       increase-degree
     ]
   ]
@@ -348,7 +354,7 @@ to random-no-bridge-kill [ node-to-connect ]
 end
 
 ;;kills a non-bridge connection (auxiliary procedure for random-no-bridge-kill)
-to kill-no-bridge
+to kill-no-bridge [ random? ]
   let flag false
   foreach sort my-connections [
      if is-bridge? ? = false and flag = false [
@@ -357,8 +363,47 @@ to kill-no-bridge
      ]
     ]
   if flag = false[
-    ask one-of my-connections [ kill-connection ]
+    ;;if random? set kill a random connection, otherwise kill the connection with the maximum degree connected node
+    ifelse random? = true [
+      ask one-of my-connections [ kill-connection ]
+    ]
+    [
+      find-node-with-max-degree
+      ask link-with node-with-max-degree [ kill-connection ]
+    ]
   ]
+end
+
+;;this strategy kills the connection with the most distant node
+to kill-most-distant [ node-to-connect ]
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
+    kill-no-bridge true
+    ask node-to-connect [ kill-no-bridge true ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      kill-no-bridge true
+      ask node-to-connect [ increase-degree ]
+    ]
+    [
+      ask node-to-connect [ kill-no-bridge true ]
+      increase-degree
+    ]
+  ]
+  create-connection-with node-to-connect [ set active true ]
+end
+
+;;auxiliary procedure for "kill-most-distant"
+to find-kill-most-distant
+  let max-distance 0
+  let node-to-kill empty-set
+  foreach sort connection-neighbors [
+   if distance ? > max-distance [
+     set max-distance distance ?
+     set node-to-kill ?
+   ]
+  ]
+  ask node-to-kill [ kill-connection ]
 end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
@@ -393,10 +438,10 @@ to-report is-bridge? [ conn ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-627
-5
-1238
-637
+662
+6
+1273
+638
 18
 18
 16.243243243243242
@@ -428,7 +473,7 @@ radius
 radius
 1
 100
-13
+10
 1
 1
 %
@@ -443,7 +488,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-7
+3
 1
 1
 NIL
@@ -458,7 +503,7 @@ nodes-number
 nodes-number
 2
 100
-100
+34
 1
 1
 NIL
@@ -699,11 +744,11 @@ NIL
 CHOOSER
 385
 113
-598
-158
+592
+159
 strategy
 strategy
-"random-kill" "max-degree-kill" "random-no-bridge-kill"
+"random-kill" "max-degree-kill" "random-no-bridge-kill" "max-degree-no-bridge-kill" "kill-most-distant"
 2
 
 @#$#@#$#@
