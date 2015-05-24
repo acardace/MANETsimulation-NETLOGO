@@ -25,7 +25,7 @@ nodes-own [ node-radius node-max-degree node-degree
   visited ]
 
 ;; to be used for bridge-detection
-connections-own [ active ]
+connections-own [ active bridge ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -153,7 +153,7 @@ to connect [ to-node ]
   
   foreach sort node-list [
     if ( link-neighbor? ? = false ) [
-      ifelse ( node-degree < node-max-degree and ( [get-node-degree] of ? ) < ( [get-max-node-degree] of ? ) ) [
+      ifelse ( node-degree < node-max-degree and ( [node-degree] of ? ) < ( [node-max-degree] of ? ) ) [
         increase-degree
         ask ? [ increase-degree ]
         create-connection-with ? [ set active true ]
@@ -232,30 +232,33 @@ end
 
 ;; count the bridges in the biggest component of the network
 to count-bridges
-  get-giant-component
+  ask connections [ set bridge false ]
   set bridges 0
-  let prev-local-component-nodes-number giant-component-nodes-number
-  foreach giant-component [
-    foreach sort [my-connections] of ?  [
-      if is-connection? ? [
-        let link-nodes [ link-ends ] of ?
-        ask ? [ die ] ;; remove the link to make the test
-        get-giant-component
-        if prev-local-component-nodes-number > giant-component-nodes-number [
-          set bridges bridges + 0.5
+  
+  if is-list? giant-component = true [
+    ;;foreach node in the giant-component
+    foreach giant-component [
+      let current-node ?
+      foreach sort [my-connections] of ?  [
+        ask current-node [
+          if is-bridge? ? [
+            ask ? [ set bridge true ]
+          ]
         ]
-        ask one-of link-nodes [ create-connection-with one-of other link-nodes [ set active true ] ]  ;; re-create same link
       ]
     ]
+    
+    set bridges count connections with [bridge = true]
   ]
+  
 end
 
 to find-node-with-max-degree
   let degree-counter 0  
   ;; determining which is the node with the maximum degree
   foreach sort connection-neighbors [ 
-    if [get-node-degree] of ? > degree-counter  [
-      set degree-counter [get-node-degree] of ?
+    if [node-degree] of ? > degree-counter  [
+      set degree-counter [node-degree] of ?
       set node-with-max-degree ?
     ]
   ]
@@ -280,7 +283,7 @@ end
 
 ;;randomly kill strategy
 to random-kill [ node-to-connect ]
-  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
     ask one-of my-connections [ kill-connection ]
     ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
   ]
@@ -301,7 +304,7 @@ end
 to max-degree-kill [ node-to-connect ]
   find-node-with-max-degree
   
-  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
     ask link-with node-with-max-degree [ kill-connection ]
     ask node-to-connect [
       find-node-with-max-degree
@@ -326,24 +329,24 @@ end
 
 ;;this strategy kills a random connection as long as it is not a bridge
 to random-no-bridge-kill [ node-to-connect ]
-  ifelse ( node-degree = node-max-degree and ( [get-node-degree] of node-to-connect ) = ( [get-max-node-degree] of node-to-connect ) ) [    
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
     kill-no-bridge
     ask node-to-connect [ kill-no-bridge ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      ask one-of my-connections [ kill-connection ]
+      kill-no-bridge
       ask node-to-connect [ increase-degree ]
     ]
     [
-      ask node-to-connect [ ask one-of my-connections [ kill-connection ] ]
+      ask node-to-connect [ kill-no-bridge ]
       increase-degree
     ]
   ]
   create-connection-with node-to-connect [ set active true ]
 end
 
-;;kills a non-bridge connection
+;;kills a non-bridge connection (auxiliary procedure for random-no-bridge-kill)
 to kill-no-bridge
   let flag false
   foreach sort my-connections [
@@ -360,36 +363,11 @@ end
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to-report get-node-degree
-  report node-degree
-end
-
-to-report get-max-node-degree
-  report node-max-degree
-end
-
-to-report link-ends
-  report both-ends
-end
-
-;;size of the giant component
-to-report size-connected-component
-  get-giant-component
-  report giant-component-nodes-number
-end
-
-;;Reports the edge density
 to-report edge-density
   report ( 2 * count connections ) / ( nodes-number * ( nodes-number - 1) )
 end
 
-to-report count-connections
-  report count connections
-end
-
 to-report get-bridges
-  count-bridges
-  get-giant-component
   ifelse giant-component-nodes-number > 1 [
     report ( ( 2 * bridges ) / ( giant-component-nodes-number * ( giant-component-nodes-number - 1 ) ) )
   ]
@@ -449,7 +427,7 @@ radius
 radius
 0.01
 1
-0.2
+0.32
 0.01
 1
 NIL
@@ -576,9 +554,9 @@ Size
 1.0
 true
 false
-"" ""
+"" "get-giant-component"
 PENS
-"default" 1.0 0 -16777216 true "" "plot (size-connected-component / nodes-number)"
+"default" 1.0 0 -16777216 true "" "plot (giant-component-nodes-number / nodes-number)"
 
 MONITOR
 267
@@ -586,8 +564,8 @@ MONITOR
 396
 207
 Giant component size
-size-connected-component
-17
+giant-component-nodes-number
+1
 1
 11
 
@@ -615,7 +593,7 @@ MONITOR
 364
 362
 Connections
-count-connections
+count connections
 17
 1
 11
@@ -626,7 +604,7 @@ MONITOR
 542
 207
 Connectivity (%)
-(size-connected-component / nodes-number) * 100
+(giant-component-nodes-number / nodes-number) * 100
 3
 1
 11
@@ -656,9 +634,9 @@ Bridges (%)
 1.0
 true
 false
-"" ""
+"" "count-bridges"
 PENS
-"default" 1.0 0 -16777216 true "" "plot 0"
+"default" 1.0 0 -16777216 true "" "plot get-bridges"
 
 PLOT
 257
@@ -676,7 +654,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [get-node-degree] of nodes"
+"default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [node-degree] of nodes"
 
 MONITOR
 270
@@ -684,7 +662,7 @@ MONITOR
 360
 464
 Bridges (%)
-0 * 100
+bridges * 100
 3
 1
 11
