@@ -22,7 +22,7 @@ globals [ giant-component-nodes-number giant-component bridges ]
 nodes-own [ node-radius node-max-degree node-degree 
   connected-nodes node-with-max-degree 
   local-component-nodes-number local-component
-  visited ]
+  visited node-speed ]
 
 ;; to be used for bridge-detection
 connections-own [ active bridge ]
@@ -37,26 +37,30 @@ to setup
   set-default-shape turtles "default"
   set-default-shape halos "thin ring"
   create-nodes nodes-number
+  ;setting global variables
+  set giant-component-nodes-number 0
+  set giant-component empty-set
+  set bridges 0
   ask nodes [ ;; make the turtle initial position random to spread them out on the torus
     setxy random-xcor random-ycor
     ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
       set node-radius  ( (random-float radius) + 0.01 ) * max-pxcor * 2
       set node-max-degree ( (random max-degree) + 1 )
+      set node-speed (random node-velocity) + 1
     ]
     [
       set node-radius radius * max-pxcor * 2
       set node-max-degree max-degree
+      set node-speed node-velocity
     ]
-    set node-degree 0 
-    set connected-nodes []
-    set visited false
-    set local-component []
-    set local-component-nodes-number 0
     make-halo node-radius
+    ;setting local variables
+    set connected-nodes []
+    set local-component []
+    set node-degree 0 
+    set local-component-nodes-number 0
+    set visited false
   ]
-  set giant-component-nodes-number 0
-  set giant-component empty-set
-  set bridges 0
   reset-ticks
 end
 
@@ -83,24 +87,23 @@ end
 ;;; Main Procedure ;;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;; Move each node as many moves-no as set
-to move [ moves-no ]
-  repeat moves-no [
-    ask nodes[
-      rt random 360
-      fd 1
-      disconnect-not-in-radius
-      set-connected-nodes
-    ]
+;; Move every node according to their speed
+;; if stop-sim? is true it runs for sim-length and then stops
+to move [ stop-sim? ]
+  ask nodes[
+    rt random 360
+    fd node-speed
   ]
-  link-neighbours
+  
+  ;;these 3 instructions are broken in 3 different blocks for concurrency reasons
+  ;;doing as below the nodes execute every instruction as in "parallel"
+  ask nodes [ disconnect-not-in-radius ]
+  ask nodes [ set-connected-nodes ]
+  ask nodes [ connect-to-neighbors ]
   tick
-end
-
-;; Move procedure which specifies how long the run must be ( in terms of ticks )
-to run-sim [ moves-no ]
-  repeat run-length [
-    move moves-no
+  
+  if ( stop-sim? = true ) and ( ticks >= run-length )[
+    stop
   ]
 end
 
@@ -118,10 +121,8 @@ to decrease-degree
 end
 
 ;;link the node with node in its radius
-to link-neighbours
-  ask nodes[   
-    connect other nodes in-radius node-radius ;; connect the node prior to some replacement strategy
-  ]
+to connect-to-neighbors   
+  connect other nodes in-radius node-radius ;; connect the node prior to some replacement strategy
 end
 
 to disconnect-not-in-radius
@@ -427,7 +428,7 @@ radius
 radius
 0.01
 1
-0.32
+0.2
 0.01
 1
 NIL
@@ -486,7 +487,7 @@ BUTTON
 254
 121
 Step
-move node-speed
+move false
 NIL
 1
 T
@@ -500,13 +501,13 @@ NIL
 SLIDER
 189
 13
-412
-46
-node-speed
-node-speed
+467
+47
+node-velocity
+node-velocity
 1
 max-pxcor * 2
-1
+36
 1
 1
 (number of steps)
@@ -529,8 +530,8 @@ BUTTON
 129
 159
 Run simulation
-run-sim node-speed
-NIL
+move true
+T
 1
 T
 OBSERVER
@@ -668,10 +669,10 @@ bridges * 100
 11
 
 INPUTBOX
-416
-13
-541
-73
+470
+14
+595
+74
 run-length
 500
 1
@@ -684,7 +685,7 @@ BUTTON
 254
 158
 Go
-move node-speed
+move false
 T
 1
 T
