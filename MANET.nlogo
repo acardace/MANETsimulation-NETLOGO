@@ -395,8 +395,8 @@ end
 GRAPHICS-WINDOW
 627
 5
-1239
-632
+1238
+637
 18
 18
 16.243243243243242
@@ -428,7 +428,7 @@ radius
 radius
 1
 100
-10
+13
 1
 1
 %
@@ -443,7 +443,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-4
+7
 1
 1
 NIL
@@ -458,7 +458,7 @@ nodes-number
 nodes-number
 2
 100
-20
+100
 1
 1
 NIL
@@ -502,12 +502,12 @@ SLIDER
 189
 13
 363
-47
+46
 node-velocity
 node-velocity
 1
 100
-20
+1
 1
 1
 %
@@ -563,7 +563,7 @@ MONITOR
 267
 161
 396
-207
+206
 Giant component size
 giant-component-nodes-number
 1
@@ -658,12 +658,12 @@ PENS
 "default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [node-degree] of nodes"
 
 MONITOR
-270
+267
 419
-360
+357
 464
 Bridges (%)
-bridges * 100
+get-bridges * 100
 3
 1
 11
@@ -704,7 +704,7 @@ CHOOSER
 strategy
 strategy
 "random-kill" "max-degree-kill" "random-no-bridge-kill"
-1
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
