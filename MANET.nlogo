@@ -105,10 +105,10 @@ to move [ stop-sim? ]
   if ( stop-sim? = true ) and ( ticks >= run-length )[
     if export-plots = true [
       let dir "plots/"
-      export-plot "Growth of connected component" ( word dir "growth-conn-comp-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Edge Density" ( word dir "edge-density-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Degree distribution" ( word dir "degree-distribution-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Growth of connected component" ( word dir "growth-conn-comp-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Edge Density" ( word dir "edge-density-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Degree distribution" ( word dir "degree-distribution-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
     ]
     
     stop
@@ -519,7 +519,7 @@ radius
 radius
 1
 100
-40
+10
 1
 1
 %
@@ -534,7 +534,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-1
+3
 1
 1
 NIL
@@ -549,7 +549,7 @@ nodes-number
 nodes-number
 2
 100
-42
+10
 1
 1
 NIL
@@ -705,7 +705,7 @@ MONITOR
 368
 318
 473
-364
+363
 Edge-Density (%)
 edge-density * 100
 3
@@ -765,7 +765,7 @@ INPUTBOX
 508
 113
 run-length
-500
+5000
 1
 0
 Number
@@ -791,17 +791,17 @@ CHOOSER
 384
 115
 644
-161
+160
 strategy
 strategy
 "random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
-2
+0
 
 SWITCH
 510
 80
 637
-114
+113
 export-plots
 export-plots
 1
