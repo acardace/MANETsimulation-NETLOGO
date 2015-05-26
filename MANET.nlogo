@@ -258,7 +258,6 @@ to count-bridges
     
     set bridges count connections with [bridge = true]
   ]
-  
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,6 +280,9 @@ to replacement-strategy [ node-to-connect ]
   ]
   if strategy = "no-bridge-kill (most-distant)" [
     no-bridge-kill node-to-connect 2
+  ]
+  if strategy = "no-bridge-kill" [
+   no-bridge-kill node-to-connect 3 
   ]
   if strategy = "most-distant-kill" [
     most-distant-kill node-to-connect
@@ -311,9 +313,8 @@ end
 
 ;;this strategy kills the connection with the node having the maximum degree
 to max-degree-kill [ node-to-connect ]
-  find-node-with-max-degree
-  
   ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
+    find-node-with-max-degree
     ask link-with node-with-max-degree [ kill-connection ]
     ask node-to-connect [
       find-node-with-max-degree
@@ -322,6 +323,7 @@ to max-degree-kill [ node-to-connect ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
+      find-node-with-max-degree
       ask link-with node-with-max-degree [ kill-connection ]
       ask node-to-connect [ increase-degree ]
     ]
@@ -337,34 +339,44 @@ to max-degree-kill [ node-to-connect ]
 end
 
 ;;auxiliary procedure for "max-degree-kill"
-to find-node-with-max-degree 
+to find-node-with-max-degree
   ;; determining which is the node with the maximum degree
   set node-with-max-degree first sort-by [ [node-degree] of ?1 > [node-degree] of ?2 ] connection-neighbors 
 end
 
 ;;this strategy kills a random connection as long as it is not a bridge
+;;otherwise use "other?" strategy to decide how and whether to remove a connection
+;;if "other?" = 3 -> if no-bridge connection is found then don't remove any existing connection
 to no-bridge-kill [ node-to-connect other? ]
-  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
-    kill-no-bridge other?
-    ask node-to-connect [ kill-no-bridge other? ]
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
+    if is-no-bridge-present? = true and [is-no-bridge-present?] of node-to-connect = true [
+      kill-no-bridge other?
+      ask node-to-connect [ kill-no-bridge other? ]
+      create-connection-with node-to-connect [ set active true ]
+    ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      kill-no-bridge other?
-      ask node-to-connect [ increase-degree ]
+      if is-no-bridge-present? = true [
+        kill-no-bridge other?
+        ask node-to-connect [ increase-degree ]
+        create-connection-with node-to-connect [ set active true ]
+      ]
     ]
     [
-      ask node-to-connect [ kill-no-bridge other? ]
-      increase-degree
+      if [is-no-bridge-present?] of node-to-connect = true [
+        ask node-to-connect [ kill-no-bridge other? ]
+        increase-degree
+        create-connection-with node-to-connect [ set active true ]
+      ]
     ]
   ]
-  create-connection-with node-to-connect [ set active true ]
 end
 
 ;;kills a non-bridge connection (auxiliary procedure for random-no-bridge-kill)
 to kill-no-bridge [ other? ]
   let flag false
-  foreach sort my-connections [
+  foreach shuffle sort my-connections [
      if is-bridge? ? = false and flag = false [
        set flag true
        ask ? [ kill-connection ]
@@ -415,22 +427,31 @@ to find-kill-most-distant
 end
 
 ;;this strategy kills a no-bridge connection with the most distant node
+;;if none are found doesn't establish the connection
 to most-distant-no-bridge-kill [ node-to-connect ]
-  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
-    kill-no-bridge-most-distant
-    ask node-to-connect [ kill-no-bridge-most-distant ]
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
+    if is-no-bridge-present? = true and [is-no-bridge-present?] of node-to-connect = true [
+      kill-no-bridge-most-distant
+      ask node-to-connect [ kill-no-bridge-most-distant ]
+      create-connection-with node-to-connect [ set active true ]
+    ]
   ]
   [
     ifelse ( node-degree = node-max-degree ) [
-      kill-no-bridge-most-distant
-      ask node-to-connect [ increase-degree ]
+      if is-no-bridge-present? = true [
+        kill-no-bridge-most-distant
+        ask node-to-connect [ increase-degree ]
+        create-connection-with node-to-connect [ set active true ]
+      ]
     ]
     [
-      ask node-to-connect [ kill-no-bridge-most-distant ]
-      increase-degree
+      if [is-no-bridge-present?] of node-to-connect = true [
+        ask node-to-connect [ kill-no-bridge-most-distant ]
+        increase-degree
+        create-connection-with node-to-connect [ set active true ]
+      ]
     ]
   ]
-  create-connection-with node-to-connect [ set active true ]
 end
 
 ;;auxiliary procedure for "most-distant-no-bridge-kill"
@@ -462,6 +483,17 @@ to-report get-bridges
   ]
 end
 
+;;returns true if among its
+;;connections there is one which is not a bridge
+to-report is-no-bridge-present?
+  let flag false
+  foreach sort my-connections [
+    if is-bridge? ? = false [ set flag true ]
+  ]
+  report flag
+end
+
+;;outputs true if "conn" is a bridge
 to-report is-bridge? [ conn ]
   let result false
   get-component self false
@@ -513,7 +545,7 @@ radius
 radius
 1
 100
-10
+15
 1
 1
 %
@@ -528,7 +560,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-3
+4
 1
 1
 NIL
@@ -543,7 +575,7 @@ nodes-number
 nodes-number
 2
 100
-20
+37
 1
 1
 NIL
@@ -788,8 +820,8 @@ CHOOSER
 160
 strategy
 strategy
-"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
-0
+"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
+1
 
 SWITCH
 510
