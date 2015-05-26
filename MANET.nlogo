@@ -261,17 +261,6 @@ to count-bridges
   
 end
 
-to find-node-with-max-degree
-  let degree-counter 0  
-  ;; determining which is the node with the maximum degree
-  foreach sort connection-neighbors [ 
-    if [node-degree] of ? > degree-counter  [
-      set degree-counter [node-degree] of ?
-      set node-with-max-degree ?
-    ]
-  ]
-end
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Strategies Procedures ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -345,6 +334,12 @@ to max-degree-kill [ node-to-connect ]
     ]
   ]
   create-connection-with node-to-connect [ set active true ]
+end
+
+;;auxiliary procedure for "max-degree-kill"
+to find-node-with-max-degree 
+  ;; determining which is the node with the maximum degree
+  set node-with-max-degree first sort-by [ [node-degree] of ?1 > [node-degree] of ?2 ] connection-neighbors 
 end
 
 ;;this strategy kills a random connection as long as it is not a bridge
@@ -548,7 +543,7 @@ nodes-number
 nodes-number
 2
 100
-10
+20
 1
 1
 NIL
