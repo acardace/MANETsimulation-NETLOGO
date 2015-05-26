@@ -41,10 +41,21 @@ The base model which has just been described has been extended with few properti
 %
 The base rule is that every node establish a new connection when possible, therefore the different strategies define how a node behaves when it has reached the maximum number of connections and a new node gets discovered (it means that the new node enters in its coverage area), this implies that some decision has to be made about whether removing an older connection in order to establish the new one and according to what criterion this must be done.\\\\
 %
-These are the different connection handling strategies present in the NetLogo implementation of the model and which are therefore available for the simulation experiments:
+These are the different connection handling strategies present in the NetLogo implementation of the model and which are therefore available for the simulation experiments.\\\\
+The following strategies define whether to remove a connection and how a node decides which connection to remove before establishing a new one:\\
 \begin{enumerate}
-	\item \textbf{Random-kill} : 
+	\item \textbf{Random-kill} : this strategy always removes an existing random connection when a new node gets discovered;
+	\\
+	%
+	\item \textbf{Max-degree-kill} : When a new node gets discovered this strategy always removes the connection with the node having the maximum degree among a node's neighbors;
+	\\
+	%
+	\item \textbf{No-bridge-kill (random)} : this strategy tries to remove a random connection which is not a bridge, this implies that removing this connection the connected component to which the node belongs is not broken in 2 smaller components. When a node only has bridge-connections it removes a random connection;
+	\\
+	%
+	\item \textbf{No-bridge-kill (max-degree)} : 
 \end{enumerate}
+%
 \section{Evaluation Metrics}
 For the purpose of evaluating the simulation results of the implementation of the model some metrics have been considered and computed on each performed experiment.\\
 %
