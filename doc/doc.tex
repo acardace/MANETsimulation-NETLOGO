@@ -10,13 +10,19 @@
 \author{Antonio Cardace}
 %
 \institute{Universit\`a di Bologna, Dipartimento di Scienze dell'Informazione
-\email{antonio.cardace2@studio.unibo.it}\\Matricola : 0000}
+\email{antonio.cardace2@studio.unibo.it}\\Matricola : 0000738443}
 \maketitle
 %
 \begin{abstract}
 A mobile ad hoc network (MANET) is a continuously self-configuring, infrastructure-less network of mobile devices connected without wires. Each   device/node in a MANET is free to move independently in any direction, and   will therefore change its links to other devices frequently. The main problem in a MANET is to maintain connectivity. A simulation model has been implemented in NetLogo to analyze the behavior of the network according to certain varying properties, the results comprehend some common evaluation metrics calculated on many experiments in which different strategies for handling connections have been used.
 \end{abstract}
 
-\section{The System}
+\section{Base Model}
+The model which has been used defines a type of agent : a node, every node moves independently and randomly. Two nodes can communicate when there is a link between them, this link gets created only if the distance between the two nodes is less or equal than \textit{r} which is the coverage area of a node. Obviously when two connected nodes move beyond their coverage area, the link between them is removed.\\
+In addition to the coverage area of a node there is another constraint to be satisfied in order for a link to be established, both nodes must have a degree which is less than the maximum possible degree.\\
+A node also has a defined speed of movement, according to this parameter we know how many steps the node can move forward in just a unit of time.\\
+The last property of the model is the strategy the nodes adopt for handling connection, which defines the behavior when events such as "establish new connection" or "replace a connection" occur.
+
+\section{Extensions to the Base Model}
 
 \end{document}
