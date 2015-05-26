@@ -51,9 +51,25 @@ The following strategies define whether to remove a connection and how a node de
 	\\
 	%
 	\item \textbf{No-bridge-kill (random)} : this strategy tries to remove a random connection which is not a bridge, this implies that removing this connection the connected component to which the node belongs is not broken in 2 smaller components. When a node only has bridge-connections it removes a random connection;
+	\\\\
+	%
+	\item \textbf{No-bridge-kill (max-degree)} : this strategy tries to remove a random connection which is not a bridge, when a node only has bridge-connections it removes the connection with the node with the maximum degree;
 	\\
 	%
-	\item \textbf{No-bridge-kill (max-degree)} : 
+	\item \textbf{No-bridge-kill (most-distant)} : this strategy tries to remove a random connection which is not a bridge, when a node only has bridge-connections it removes the connection with the node which is the most distant;
+	\\
+	%
+	\item \textbf{No-bridge-kill} : this strategy tries to remove a random connection which is not a bridge, if all connections are bridges the new connection is not established;
+	\\
+	%
+	\item \textbf{Most-distant-kill} : this strategy always removes the connection with the most distant node in order to be able to connect to a new node;
+	\\
+	%
+	\item \textbf{Most-distant-no-bridge-kill} : this strategy tries to remove a non-bridge connection with the most distant node, if every connection is a bridge then the new connection is not established;
+	\\
+	
+	All the connection handling strategies which have just been described will be used in the following experiments which have been performed with the NetLogo software.
+	
 \end{enumerate}
 %
 \section{Evaluation Metrics}
