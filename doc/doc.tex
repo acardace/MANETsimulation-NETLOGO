@@ -37,8 +37,14 @@ The base model which has just been described has been extended with few properti
 	\item \textbf{Node maximum degree} : every node can have its own maximum degree parameter. When the global parameter $D_{m}$ (maximum degree) is set a node set its own maximum degree parameter which is chosen randomly and uniformly between 1 and $D_{m}$.
 \end{itemize}
 %
-\subsection{Strategies}
+\subsection{Connection Handling Strategies}
 %
+The base rule is that every node establish a new connection when possible, therefore the different strategies define how a node behaves when it has reached the maximum number of connections and a new node gets discovered (it means that the new node enters in its coverage area), this implies that some decision has to be made about whether removing an older connection in order to establish the new one and according to what criterion this must be done.\\\\
+%
+These are the different connection handling strategies present in the NetLogo implementation of the model and which are therefore available for the simulation experiments:
+\begin{enumerate}
+	\item \textbf{Random-kill} : 
+\end{enumerate}
 \section{Evaluation Metrics}
 For the purpose of evaluating the simulation results of the implementation of the model some metrics have been considered and computed on each performed experiment.\\
 %
