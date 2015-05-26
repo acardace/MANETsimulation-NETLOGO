@@ -43,16 +43,15 @@ to setup
   set bridges 0
   ask nodes [ ;; make the turtle initial position random to spread them out on the torus
     setxy random-xcor random-ycor
-    ifelse ( all-different = true ) [ ;; if all-different is set every node has got different radius and max-degree
-      set node-radius ( (random radius ) + 1 ) / 100 * max-pxcor * 2
+    ifelse ( all-different = true ) [ ;; if all-different is set every node has got different speed and max-degree
       set node-max-degree ( (random max-degree) + 1 )
       set node-speed ( (random node-velocity ) + 1 ) / 100 * max-pxcor * 2
     ]
     [
-      set node-radius radius / 100 * max-pxcor * 2
       set node-max-degree max-degree
       set node-speed node-velocity / 100 * max-pxcor * 2
     ]
+    set node-radius radius / 100 * max-pxcor * 2
     make-halo node-radius
     ;setting local variables
     set connected-nodes []
@@ -598,7 +597,7 @@ node-velocity
 node-velocity
 1
 100
-1
+15
 1
 1
 %
@@ -611,7 +610,7 @@ SWITCH
 159
 all-different
 all-different
-1
+0
 1
 -1000
 
