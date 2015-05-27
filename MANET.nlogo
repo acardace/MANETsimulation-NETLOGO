@@ -606,7 +606,7 @@ radius
 radius
 1
 100
-18
+31
 1
 1
 %
@@ -636,7 +636,7 @@ nodes-number
 nodes-number
 2
 100
-32
+14
 1
 1
 NIL
@@ -685,7 +685,7 @@ node-velocity
 node-velocity
 1
 100
-1
+3
 1
 1
 %
@@ -698,7 +698,7 @@ SWITCH
 159
 all-different
 all-different
-0
+1
 1
 -1000
 
@@ -720,10 +720,10 @@ NIL
 1
 
 PLOT
-7
-160
-253
-310
+8
+170
+331
+369
 Growth of connected component
 Time
 Size
@@ -738,10 +738,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot (giant-component-nodes-number / nodes-number)"
 
 MONITOR
-267
-161
-396
-206
+358
+172
+487
+217
 Giant component size
 giant-component-nodes-number
 1
@@ -749,10 +749,10 @@ giant-component-nodes-number
 11
 
 PLOT
-7
-316
-253
-466
+10
+603
+330
+788
 Edge Density
 Time
 Edge-Density
@@ -767,10 +767,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot edge-density"
 
 MONITOR
-270
-317
-364
-362
+358
+221
+452
+266
 Connections
 count connections
 17
@@ -778,10 +778,10 @@ count connections
 11
 
 MONITOR
-399
-162
-543
-207
+491
+172
+635
+217
 Connectivity (%)
 (giant-component-nodes-number / nodes-number) * 100
 3
@@ -789,10 +789,10 @@ Connectivity (%)
 11
 
 MONITOR
-368
-318
-473
-363
+455
+221
+560
+266
 Edge-Density (%)
 edge-density * 100
 3
@@ -801,9 +801,9 @@ edge-density * 100
 
 PLOT
 8
-469
-253
-639
+373
+331
+601
 Bridges (%) in giant-component
 Time
 Bridges (%)
@@ -818,10 +818,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot get-bridges"
 
 PLOT
-257
-469
-502
-638
+336
+569
+630
+788
 Degree distribution
 Degree
 Nodes
@@ -836,10 +836,10 @@ PENS
 "default" 1.0 1 -16777216 false "set-plot-x-range 0 max-degree\nset-plot-y-range 0 nodes-number" "histogram [node-degree] of nodes"
 
 MONITOR
-267
-419
-357
-464
+358
+269
+448
+314
 Bridges (%)
 get-bridges * 100
 3
@@ -882,7 +882,7 @@ CHOOSER
 strategy
 strategy
 "random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill" "max-degree-no-bridge-kill"
-3
+0
 
 SWITCH
 510
