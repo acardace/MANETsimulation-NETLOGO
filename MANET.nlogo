@@ -88,7 +88,7 @@ end
 
 ;; Move every node according to their speed
 ;; if stop-sim? is true it runs for sim-length and then stops
-to move [ stop-sim? ]
+to move [ stop-sim? rep-number ]
   ask nodes[
     rt random 360
     fd node-speed
@@ -104,10 +104,10 @@ to move [ stop-sim? ]
   if ( stop-sim? = true ) and ( ticks >= run-length )[
     if export-plots = true [
       let dir "plots/"
-      export-plot "Growth of connected component" ( word dir "growth-conn-comp-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Edge Density" ( word dir "edge-density-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
-      export-plot "Degree distribution" ( word dir "degree-distribution-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed).csv" )
+      export-plot "Growth of connected component" ( word dir "connectivity-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
+      export-plot "Edge Density" ( word dir "edge-density-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
+      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
+      export-plot "Degree distribution" ( word dir "degree-distribution-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
     ]
     
     stop
@@ -606,7 +606,7 @@ radius
 radius
 1
 100
-31
+15
 1
 1
 %
@@ -621,7 +621,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-6
+5
 1
 1
 NIL
@@ -636,7 +636,7 @@ nodes-number
 nodes-number
 2
 100
-14
+60
 1
 1
 NIL
@@ -665,7 +665,7 @@ BUTTON
 254
 121
 Step
-move false
+move false 0
 NIL
 1
 T
@@ -685,7 +685,7 @@ node-velocity
 node-velocity
 1
 100
-3
+5
 1
 1
 %
@@ -698,7 +698,7 @@ SWITCH
 159
 all-different
 all-different
-1
+0
 1
 -1000
 
@@ -708,7 +708,7 @@ BUTTON
 129
 159
 Run simulation
-move true
+move true 0
 T
 1
 T
@@ -852,7 +852,7 @@ INPUTBOX
 508
 113
 run-length
-5000
+2000
 1
 0
 Number
@@ -863,7 +863,7 @@ BUTTON
 254
 158
 Go
-move false
+move false 0
 T
 1
 T
@@ -891,7 +891,7 @@ SWITCH
 113
 export-plots
 export-plots
-1
+0
 1
 -1000
 
@@ -1247,6 +1247,104 @@ NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Random strategy" repetitions="3" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;random-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="max-degree strategy" repetitions="3" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;max-degree-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="no-bridge-kill" repetitions="3" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;no-bridge-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="most-distant-kill" repetitions="3" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;most-distant-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
