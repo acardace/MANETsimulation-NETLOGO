@@ -12,7 +12,7 @@ undirected-link-breed [connections connection]
 ;;; Global variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-globals [ giant-component-nodes-number giant-component bridges ]
+globals [ giant-component-edges-number giant-component-nodes-number giant-component bridges ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
@@ -25,7 +25,7 @@ nodes-own [ node-radius node-max-degree node-degree
   visited node-speed ]
 
 ;; to be used for bridge-detection
-connections-own [ active bridge ]
+connections-own [ active bridge counted ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Setup Procedures ;;;
@@ -212,9 +212,11 @@ to get-giant-component
   set giant-component-nodes-number 1
   let temp-giant-component one-of nodes
   set giant-component []
+  set giant-component-edges-number 0
   
   ;;set all nodes as not visited
   ask nodes [ set visited false ]
+  ask connections [ set counted false ]
   
   ;;ask all the nodes to compute their local component and add them to a list
   foreach sort nodes [
@@ -236,6 +238,19 @@ to get-giant-component
     ]
   ]
   set giant-component temp-giant-component
+  ;;compute the number of edges in the giant component
+  if is-list? giant-component = true [
+    foreach giant-component[
+      foreach sort ( [my-connections] of ? ) [
+        ask ? [ 
+          if not counted [
+            set counted true
+            set giant-component-edges-number giant-component-edges-number + 1
+          ]
+        ]
+      ]
+    ]
+  ]
 end
 
 ;; count the bridges in the biggest component of the network
@@ -522,7 +537,7 @@ end
 
 to-report get-bridges
   ifelse giant-component-nodes-number > 1 [
-    report ( ( 2 * bridges ) / ( giant-component-nodes-number * max-degree ) )
+    report bridges  / giant-component-edges-number 
   ]
   [
     report 0
@@ -591,7 +606,7 @@ radius
 radius
 1
 100
-15
+18
 1
 1
 %
@@ -606,7 +621,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-9
+6
 1
 1
 NIL
@@ -621,7 +636,7 @@ nodes-number
 nodes-number
 2
 100
-41
+32
 1
 1
 NIL
@@ -867,7 +882,7 @@ CHOOSER
 strategy
 strategy
 "random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill" "max-degree-no-bridge-kill"
-8
+3
 
 SWITCH
 510
