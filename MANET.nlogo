@@ -505,7 +505,7 @@ to kill-no-bridge-max-degree
   foreach nodes-max-degree [
    if is-bridge? ? = false [
      if flag = false [
-       ask ? [ kill-connection ]
+       ask connection-with ? [ kill-connection ]
        set flag true
      ]
    ] 
@@ -522,7 +522,7 @@ end
 
 to-report get-bridges
   ifelse giant-component-nodes-number > 1 [
-    report ( ( 2 * bridges ) / ( giant-component-nodes-number * ( giant-component-nodes-number - 1 ) ) )
+    report ( ( 2 * bridges ) / ( giant-component-nodes-number * max-degree ) )
   ]
   [
     report 0
@@ -576,8 +576,8 @@ GRAPHICS-WINDOW
 18
 -18
 18
-0
-0
+1
+1
 1
 ticks
 30.0
