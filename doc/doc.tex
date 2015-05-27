@@ -70,8 +70,11 @@ The following strategies define whether to remove a connection and how a node de
 	%
 	\item \textbf{Max-degree-no-bridge-kill} : this strategy tries to remove a non-bridge connection with the node with the maximum degree, if every connection is a bridge then the new connection is not established;
 	%
+	\\\\
+	All the "no-bridge" strategies are \underline{theoretical} strategies because in a MANET there's no centralized vision of what is happening, therefore these kind of strategies in reality are not possible, nevertheless I included them as being "optimal" strategies because they were of interest to me.
+	%
+	\\\\
 	All the connection handling strategies which have just been described will be used in the following experiments which have been performed with the NetLogo software.
-	
 \end{enumerate}
 %
 \section{Evaluation Metrics}
@@ -99,14 +102,28 @@ In this evaluation metric the number of bridges over the number of edges is take
 %
 This metric is computed as follows : \\
 %
-\[ B_{gc} = \frac{2 * Bn_{gc}}{N_{gc} * D_{m} } \]
+\[ B_{gc} = \frac{Bn_{gc}}{E_{gc}} \]
 %
 \\
-where $Bn_{gc}$ is the number of bridges present in the giant component.
+where $Bn_{gc}$ is the number of bridges present in the giant component.\\\\
+%
+The percentage of bridges is defined as the fault-tolerance of the network, the lower the number of bridges is the higher is the resilience of the network, as a matter of fact the metric $B_{gc}$ represents the probability of breaking the giant component in two distinct components removing a connection picked randomly, so as stated before the lower this probability is the better is the network.
 \subsection{Degree Distribution}
+The last metric which is the degree distribution doesn't help us in evaluating how good is the network we obtain with a certain configuration, but it is still of interest because we may want to know to what law the degree distribution obeys.\\\\
+As a matter of fact it may be curious to find out that the degree distribution when the network is fully connected might obey either a power law, therefore there are some nodes which are hubs, or a normal distribution.
 %
 \section{Experiments}
 %
+In this section there are the results of the experiments with different configurations of the parameters of the model we have described so far.\\\\
+%
+Since the range of the parameters which characterize the model is too wide we will make some assumptions on the value of some them as to study the parameters which are more of interest with the objective to find relations between them and if possible to find the tipping points of these properties to have a fully connected network.\\\\
+%
+Throughout the experiments the following parameters will be set to the following values : \\
+%
+\begin{itemize}
+	\item $r$ (radius) = 15%
+	\item $s$ (node speed) = 
+\end{itemize}
 \section{Conclusions}
 % ---- Bibliography ----
 %
