@@ -67,7 +67,9 @@ The following strategies define whether to remove a connection and how a node de
 	%
 	\item \textbf{Most-distant-no-bridge-kill} : this strategy tries to remove a non-bridge connection with the most distant node, if every connection is a bridge then the new connection is not established;
 	\\
-	
+	%
+	\item \textbf{Max-degree-no-bridge-kill} : this strategy tries to remove a non-bridge connection with the node with the maximum degree, if every connection is a bridge then the new connection is not established;
+	%
 	All the connection handling strategies which have just been described will be used in the following experiments which have been performed with the NetLogo software.
 	
 \end{enumerate}
@@ -75,9 +77,21 @@ The following strategies define whether to remove a connection and how a node de
 \section{Evaluation Metrics}
 For the purpose of evaluating the simulation results of the implementation of the model some metrics have been considered and computed on each performed experiment.\\
 %
-\subsection{Growth of Connected Component}
 \subsection{Connectivity}
+One of the evaluation metric which has been taken into account is the growth over time of the biggest connected component, this has a strong meaning for the network we obtain because what it basically means is how many node is the giant component made of and therefore how many nodes are at a given time reachable in terms of communication.\\\\
+%
+As a matter of fact the size of the biggest component present in the network has been defined as being the value of \textbf{connectivity} of the network, which defines the probability that if we randomly pick two nodes of the network there exists a path between them through which they are capable of communicating with each other.\\\\
+%
+Given this definition of connectivity this is the metric of the network we obtain which we most care and pursue to maximize (the greater this value is the better the connectivity is).
 \subsection{Edge Density}
+This evaluation metric takes into consideration how many edges are present over the possible number of edges.\\
+This metric is computed a bit differently from the standard one because in this model we have a constraint on the number of edges which each node can have (the maximum degree).\\\\
+%
+The edge density $E_{D}$ is computed as follows:\\\\
+%
+\[ E_{D} = \frac{2 * E_{gc} }{ N_{gc} * D_{m} }  \]
+\\
+where $E_{gc}$ is the number of edges present in the biggest/giant component and $N_{gc}$ is the number of nodes present in the biggest/giant component.
 \subsection{Bridges}
 \subsection{Degree Distribution}
 %
