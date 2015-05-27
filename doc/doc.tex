@@ -93,6 +93,16 @@ The edge density $E_{D}$ is computed as follows:\\\\
 \\
 where $E_{gc}$ is the number of edges present in the biggest/giant component and $N_{gc}$ is the number of nodes present in the biggest/giant component.
 \subsection{Bridges}
+An edge in a graph is a bridge if deleting it increases the number of components of the graph.\\\\
+%
+In this evaluation metric the number of bridges over the number of edges is taken into account (to normalize the value between 0-1), for the purpose of examining the network we obtain during the experiments we are only interested in calculating the percentage of bridges present in the giant component.\\\\
+%
+This metric is computed as follows : \\
+%
+\[ B_{gc} = \frac{2 * Bn_{gc}}{N_{gc} * D_{m} } \]
+%
+\\
+where $Bn_{gc}$ is the number of bridges present in the giant component.
 \subsection{Degree Distribution}
 %
 \section{Experiments}
