@@ -621,7 +621,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-5
+15
 1
 1
 NIL
@@ -636,7 +636,7 @@ nodes-number
 nodes-number
 2
 100
-60
+80
 1
 1
 NIL
@@ -882,7 +882,7 @@ CHOOSER
 strategy
 strategy
 "random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill" "max-degree-no-bridge-kill"
-0
+3
 
 SWITCH
 510
