@@ -290,6 +290,9 @@ to replacement-strategy [ node-to-connect ]
   if strategy = "most-distant-no-bridge-kill" [
     most-distant-no-bridge-kill node-to-connect
   ]
+  if strategy = "max-degree-no-bridge-kill" [
+    max-degree-no-bridge-kill node-to-connect
+  ]
 end
 
 ;;randomly kill strategy
@@ -466,6 +469,49 @@ to kill-no-bridge-most-distant
   ask conn-to-kill [ kill-connection ]
 end
 
+;;this strategy kills a no-bridge connection with the node
+;;which has maximum degree, if all the connections are bridges
+;;it doesn't establish a new connection
+to max-degree-no-bridge-kill [ node-to-connect ]
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
+    if is-no-bridge-present? = true and [is-no-bridge-present?] of node-to-connect = true [
+      kill-no-bridge-max-degree
+      ask node-to-connect [ kill-no-bridge-max-degree ]
+      create-connection-with node-to-connect [ set active true ]
+    ]
+  ]
+  [
+    ifelse ( node-degree = node-max-degree ) [
+      if is-no-bridge-present? = true [
+        kill-no-bridge-max-degree
+        ask node-to-connect [ increase-degree ]
+        create-connection-with node-to-connect [ set active true ]
+      ]
+    ]
+    [
+      if [is-no-bridge-present?] of node-to-connect = true [
+        ask node-to-connect [ kill-no-bridge-max-degree ]
+        increase-degree
+        create-connection-with node-to-connect [ set active true ]
+      ]
+    ]
+  ]
+end
+
+;;auxiliary procedure for "max-degree-no-bridge-kill"
+to kill-no-bridge-max-degree
+  let flag false
+  let nodes-max-degree sort-by [ [node-degree] of ?1 > [node-degree] of ?2 ] connection-neighbors
+  foreach nodes-max-degree [
+   if is-bridge? ? = false [
+     if flag = false [
+       ask ? [ kill-connection ]
+       set flag true
+     ]
+   ] 
+  ]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Reports Procedures ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -560,7 +606,7 @@ max-degree
 max-degree
 1
 nodes-number - 1
-4
+9
 1
 1
 NIL
@@ -575,7 +621,7 @@ nodes-number
 nodes-number
 2
 100
-37
+41
 1
 1
 NIL
@@ -624,7 +670,7 @@ node-velocity
 node-velocity
 1
 100
-15
+1
 1
 1
 %
@@ -820,8 +866,8 @@ CHOOSER
 160
 strategy
 strategy
-"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill"
-1
+"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill" "max-degree-no-bridge-kill"
+8
 
 SWITCH
 510
