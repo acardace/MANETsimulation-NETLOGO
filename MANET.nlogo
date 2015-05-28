@@ -104,10 +104,10 @@ to move [ stop-sim? rep-number ]
   if ( stop-sim? = true ) and ( ticks >= run-length )[
     if export-plots = true [
       let dir "plots/"
-      export-plot "Growth of connected component" ( word dir "connectivity-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
-      export-plot "Edge Density" ( word dir "edge-density-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
-      export-plot "Bridges (%) in giant-component" ( word dir "bridges-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
-      export-plot "Degree distribution" ( word dir "degree-distribution-" strategy "(strategy)-" nodes-number "(nodes)-" radius "(radius)-" max-degree "(max-degree)-" node-velocity "(node-speed)-" rep-number "-.csv" )
+      export-plot "Growth of connected component" ( word dir "Connectivity_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
+      export-plot "Edge Density" ( word dir "Edge density_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
+      export-plot "Bridges (%) in giant-component" ( word dir "Bridges_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
+      export-plot "Degree distribution" ( word dir "Degree distribution_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
     ]
     
     stop
@@ -281,31 +281,31 @@ end
 
 ;; wrapper function for the replacement strategy
 to replacement-strategy [ node-to-connect ]
-  if strategy = "random-kill" [
+  if strategy = "Random-kill" [
     random-kill node-to-connect
   ]
-  if strategy = "max-degree-kill" [
+  if strategy = "Max-degree-kill" [
     max-degree-kill node-to-connect
   ]
-  if strategy = "no-bridge-kill (random)" [
+  if strategy = "No-bridge-kill (random)" [
     no-bridge-kill node-to-connect 0
   ]
-  if strategy = "no-bridge-kill (max-degree)" [
+  if strategy = "No-bridge-kill (max-degree)" [
     no-bridge-kill node-to-connect 1
   ]
-  if strategy = "no-bridge-kill (most-distant)" [
+  if strategy = "No-bridge-kill (most-distant)" [
     no-bridge-kill node-to-connect 2
   ]
-  if strategy = "no-bridge-kill" [
+  if strategy = "No-bridge-kill" [
    no-bridge-kill node-to-connect 3 
   ]
-  if strategy = "most-distant-kill" [
+  if strategy = "Most-distant-kill" [
     most-distant-kill node-to-connect
   ]
-  if strategy = "most-distant-no-bridge-kill" [
+  if strategy = "Most-distant-no-bridge-kill" [
     most-distant-no-bridge-kill node-to-connect
   ]
-  if strategy = "max-degree-no-bridge-kill" [
+  if strategy = "Max-degree-no-bridge-kill" [
     max-degree-no-bridge-kill node-to-connect
   ]
 end
@@ -881,8 +881,8 @@ CHOOSER
 160
 strategy
 strategy
-"random-kill" "max-degree-kill" "most-distant-no-bridge-kill" "no-bridge-kill" "no-bridge-kill (random)" "no-bridge-kill (most-distant)" "no-bridge-kill (max-degree)" "most-distant-kill" "max-degree-no-bridge-kill"
-3
+"Random-kill" "Max-degree-kill" "Most-distant-no-bridge-kill" "No-bridge-kill" "No-bridge-kill (random)" "No-bridge-kill (most-distant)" "No-bridge-kill (max-degree)" "Most-distant-kill" "Max-degree-no-bridge-kill"
+0
 
 SWITCH
 510
