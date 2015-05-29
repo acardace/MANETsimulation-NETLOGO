@@ -1,6 +1,12 @@
 #!/bin/bash
+
+#delete all whitespaces
+rename ' ' '_'  $1/*.csv
+echo "whitespaces removed..."
+
 FILES=`ls $1/*.csv`
-LASTFILES=" "
+echo "doing append operations..."
+
 for i in $FILES
 do
    if [ -e `echo $i | sed 's/\.\///g'` ]
@@ -13,8 +19,26 @@ do
       sed -i 's/"//g' $i
 
       OUT=`echo $i | sed 's/_[0-9]*.csv/\*.csv/' | sed 's/\.\///g'`
-      SAMEFILES=`ls $1"/"$OUT| sed 's/\.\///g'`
-      for k in `echo $SAMEFILES | cut -d' ' -f 2,3`
+      SAMEFILES=`ls $OUT| sed 's/\.\///g'`
+
+      #renaming main file
+      MAINFILE=`echo $SAMEFILES | cut -d' ' -f 1`
+
+      #test the name if there is a double _5_5_
+      echo  $i | grep _5_5_ &> /dev/null
+      if [ $? -eq 0 ]
+      then
+         mv $MAINFILE `echo $MAINFILE | sed 's/_5_5_[0-9].*\.csv/_5_5\.csv/'`
+         MAINFILE=`echo $MAINFILE | sed 's/_5_5_[0-9].*\.csv/_5_5\.csv/'`
+      else
+         mv $MAINFILE `echo $MAINFILE | sed 's/_5_[0-9].*\.csv/_5\.csv/'`
+         MAINFILE=`echo $MAINFILE | sed 's/_5_[0-9].*\.csv/_5\.csv/'`
+      fi
+
+      echo "adding to "$MAINFILE
+
+      SAMEFILES=`echo $SAMEFILES | cut -d' ' -f 2`
+      for k in $SAMEFILES
       do
          # fix csv format
          tail -n +17 $k &> temp.csv
@@ -24,8 +48,16 @@ do
          sed -i 's/"//g' $k
 
          # append the content of the file to the first one
-         cat $k | tail -n +2 >> `echo $SAMEFILES | cut -d' ' -f 1`
+         tail -n +2 $k >> $MAINFILE
          rm $k
       done
    fi
 done
+
+echo "renaming back files..."
+
+#bring back all the whitespaces
+rename 'ee_dis' 'ee dis'  $1/*.csv
+rename 'ge_den' 'ge den'  $1/*.csv
+
+echo "DONE!"
