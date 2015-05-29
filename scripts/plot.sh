@@ -2,16 +2,6 @@
 
 CMD="./plotter.R "
 
-#cleaning files
-#for i in $1 $2 $3 $4
-#do
-##   tail -n +17 $i &> temp.csv
-   #mv temp.csv $i
-   #sed -i 's/,"0","true"//g' $i
-   #sed -i 's/,"color","pen down?"//g' $i
-   #sed -i 's/"//g' $i
-#done
-
 #getting the plot name and other stuff
 OUT=`echo $1 | cut -d'_' -f 1,2`
 OUT=\"$OUT".eps"\"
@@ -30,4 +20,3 @@ do
    CMD=$CMD" "$HEADING
 done
 
-echo $CMD
