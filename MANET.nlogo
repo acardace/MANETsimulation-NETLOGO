@@ -882,7 +882,7 @@ CHOOSER
 strategy
 strategy
 "Random-kill" "Max-degree-kill" "Most-distant-no-bridge-kill" "No-bridge-kill" "No-bridge-kill (random)" "No-bridge-kill (most-distant)" "No-bridge-kill (max-degree)" "Most-distant-kill" "Max-degree-no-bridge-kill"
-0
+2
 
 SWITCH
 510
@@ -1248,10 +1248,10 @@ NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="Random strategy" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="Random strategy" repetitions="2" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>move true random 1000</go>
-    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
     <enumeratedValueSet variable="all-different">
       <value value="true"/>
     </enumeratedValueSet>
@@ -1266,16 +1266,16 @@ NetLogo 5.2.0
       <value value="15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="strategy">
-      <value value="&quot;random-kill&quot;"/>
+      <value value="&quot;Random-kill&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="node-velocity">
       <value value="5"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="max-degree strategy" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="max-degree strategy" repetitions="2" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>move true random 1000</go>
-    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
     <enumeratedValueSet variable="all-different">
       <value value="true"/>
     </enumeratedValueSet>
@@ -1290,16 +1290,16 @@ NetLogo 5.2.0
       <value value="15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="strategy">
-      <value value="&quot;max-degree-kill&quot;"/>
+      <value value="&quot;Max-degree-kill&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="node-velocity">
       <value value="5"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="no-bridge-kill" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="no-bridge-kill" repetitions="2" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>move true random 1000</go>
-    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
     <enumeratedValueSet variable="all-different">
       <value value="true"/>
     </enumeratedValueSet>
@@ -1314,16 +1314,16 @@ NetLogo 5.2.0
       <value value="15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="strategy">
-      <value value="&quot;no-bridge-kill&quot;"/>
+      <value value="&quot;No-bridge-kill&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="node-velocity">
       <value value="5"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="most-distant-kill" repetitions="3" runMetricsEveryStep="true">
+  <experiment name="most-distant-kill" repetitions="2" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>move true random 1000</go>
-    <steppedValueSet variable="nodes-number" first="60" step="10" last="90"/>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
     <enumeratedValueSet variable="all-different">
       <value value="true"/>
     </enumeratedValueSet>
@@ -1338,7 +1338,55 @@ NetLogo 5.2.0
       <value value="15"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="strategy">
-      <value value="&quot;most-distant-kill&quot;"/>
+      <value value="&quot;Most-distant-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="max-degree-no-bridge-kill" repetitions="2" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;Max-degree-no-bridge-kill&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="node-velocity">
+      <value value="5"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="max-degree-no-bridge-kill" repetitions="2" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>move true random 1000</go>
+    <steppedValueSet variable="nodes-number" first="70" step="10" last="90"/>
+    <enumeratedValueSet variable="all-different">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="run-length">
+      <value value="2000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="export-plots">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="max-degree" first="5" step="10" last="25"/>
+    <enumeratedValueSet variable="radius">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy">
+      <value value="&quot;Most-distant-no-bridge-kill&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="node-velocity">
       <value value="5"/>
