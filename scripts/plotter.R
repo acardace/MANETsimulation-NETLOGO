@@ -6,16 +6,16 @@ xfile1 <- args[1]
 outfile <- args[2]
 xlabel <-args[3]
 ylabel <-args[4]
-heading1 <- args[5]
+heading1 <- paste( args[5], " ", args[6] )
 
-xfile2 <- args[6]
-heading2 <- args[7]
+xfile2 <- args[7]
+heading2 <- paste( args[8], " ", args[9] )
 
-xfile3 <- args[8]
-heading3 <- args[9]
+xfile3 <- args[10]
+heading3 <- paste( args[11], " ", args[12] )
 
-xfile4 <- args[10]
-heading4 <- args[11]
+xfile4 <- args[13]
+heading4 <- paste( args[14], " ", args[15] )
 
 file1 <- read.csv(file=xfile1,head=TRUE,sep=",")
 xrange1 <-range(file1$x)
@@ -39,4 +39,4 @@ qp2 <- qplot(file2$x,file2$y, alpha=1, geom="smooth", xlim=xrange2, ylim=yrange2
 qp3 <- qplot(file3$x,file3$y, alpha=1, geom="smooth", xlim=xrange3, ylim=yrange3, xlab=xlabel, ylab=ylabel, main=heading3) + theme(legend.position="none")
 qp4 <- qplot(file4$x,file4$y, alpha=1, geom="smooth", xlim=xrange4, ylim=yrange4, xlab=xlabel, ylab=ylabel, main=heading4) + theme(legend.position="none")
 result <- arrangeGrob( qp1, qp2 ,qp3, qp4)
-ggsave(result, file=outfile)
+ggsave( result, file=outfile)
