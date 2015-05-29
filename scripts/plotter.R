@@ -2,37 +2,57 @@
 require(ggplot2)
 require(gridExtra)
 args <- commandArgs(trailingOnly = TRUE)
-xfile1 <- args[1]
+
+in_files <- NULL
+files <- NULL
+headings <- NULL
+xranges <- NULL
+yranges <- NULL
+nodes <- NULL
+mds <- NULL
+
 outfile <- args[2]
 xlabel <-args[3]
 ylabel <-args[4]
-heading1 <- paste( args[5], " ", args[6] )
 
-xfile2 <- args[7]
-heading2 <- paste( args[8], " ", args[9] )
+in_files[1] <- args[1]
+headings[1] <- paste( args[5], " ", args[6] )
+nodes[1] <- args[7]
+mds[1] <- args[8]
 
-xfile3 <- args[10]
-heading3 <- paste( args[11], " ", args[12] )
+sq <- seq(9, 30, by=3)
+j <- 1
+for ( i in sq ){
+   j <- j+1
+   in_files[j] <- args[i]
+   nodes[j] <- args[i+1]
+   mds[j] <- args[i+2]
+}
 
-xfile4 <- args[13]
-heading4 <- paste( args[14], " ", args[15] )
+sq<- seq(33, 91, by=29)
+for( i in sq ){
+   j <- j+1
+   in_files[j] <- args[i]
+   headings[j] <- paste( args[i+1], " ", args[i+2] )
+   nodes[j] <- args[i+3]
+   mds[j] <- args[i+4]
 
-file1 <- read.csv(file=xfile1,head=TRUE,sep=",")
-xrange1 <-range(file1$x)
-yrange1 <-range(file1$y)
+   inner_seq <- seq(i+5, i+26 , by=3)
+   for( k in inner_seq ){
+      j <- j+1
+      in_files[j] <- args[k]
+      nodes[j] <- args[k+1]
+      mds[j] <- args[k+2]
+   }
+}
 
-file2 <- read.csv(file=xfile2,head=TRUE,sep=",")
-xrange2 <-range(file2$x)
-yrange2 <-range(file2$y)
+for( i in 1:j ){
+   files[i] <- read.csv(file=in_files[i],head=TRUE,sep=",")
+   xranges[i] <-range(files[i]$x)
+   yranges[i] <-range(files[i]$y)
+}
 
-file3 <- read.csv(file=xfile3,head=TRUE,sep=",")
-xrange3 <-range(file3$x)
-yrange3 <-range(file3$y)
-
-file4 <- read.csv(file=xfile4,head=TRUE,sep=",")
-xrange4 <-range(file4$x)
-yrange4 <-range(file4$y)
-
+#TOFINISH
 
 qp1 <- qplot(file1$x,file1$y, alpha=1, geom="smooth", xlim=xrange1, ylim=yrange1, xlab=xlabel, ylab=ylabel, main=heading1) + theme(legend.position="none")
 qp2 <- qplot(file2$x,file2$y, alpha=1, geom="smooth", xlim=xrange2, ylim=yrange2, xlab=xlabel, ylab=ylabel, main=heading2) + theme(legend.position="none")
