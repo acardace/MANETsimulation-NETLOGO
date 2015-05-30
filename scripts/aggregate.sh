@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #delete all whitespaces
-rename ' ' '_'  $1/*.csv
+rename ' ' '-'  $1/*.csv
 echo "whitespaces removed..."
 
 FILES=`ls $1/*.csv`
@@ -53,11 +53,5 @@ do
       done
    fi
 done
-
-echo "renaming back files..."
-
-#bring back all the whitespaces
-rename 'ee_dis' 'ee dis'  $1/*.csv
-rename 'ge_den' 'ge den'  $1/*.csv
 
 echo "DONE!"
