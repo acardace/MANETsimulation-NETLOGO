@@ -11,6 +11,7 @@ nodes <- NULL
 mds <- NULL
 conf <- NULL
 data <- NULL
+qp <- NULL
 
 
 #ARGV PARSING
@@ -73,17 +74,13 @@ for( i in 1:4){
 
    #melting data
    colnames( files[[i]] ) <- conf[col_counter:(col_counter+9)]
-   data[[i]] <- melt( files[[i]], id=xlabel)
+   data[[i]] <- melt( files[[i]], id=xlabel, variable.name="Experiments")
 
+   #plotting
+   qp[[i]] <- ggplot( data[[i]], aes(x=xlabel, y=value, colour=Experiments)) + stat_smooth() + ggtitle(headings[i]) + xlab(xlabel) + ylab(ylabel)
 }
 
-#plotting
-for( i in 1:4 ){
-
-}
-#end of plotting
-
-plot1 <- arrangeGrob( qp1, qp2)
-plot2 <- arrangeGrob( qp3, qp4)
-ggsave( plot1, file=paste( "p1-" ,outfile, sep="") )
+plot1 <- arrangeGrob( qp[[1]], qp[[2]] )
+plot2 <- arrangeGrob( qp[[3]], qp[[4]] )
+ggsave( plot1, file=paste( "p1-", outfile, sep="") )
 ggsave( plot2, file=paste( "p2-", outfile, seq="") )
