@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 require(ggplot2)
 require(gridExtra)
+require(reshape2)
 args <- commandArgs(trailingOnly = TRUE)
 
 in_files <- NULL
@@ -8,7 +9,11 @@ files <- NULL
 headings <- NULL
 nodes <- NULL
 mds <- NULL
+conf <- NULL
+data <- NULL
 
+
+#ARGV PARSING
 outfile <- args[2]
 xlabel <-args[3]
 ylabel <-args[4]
@@ -43,18 +48,40 @@ for( i in sq ){
       mds[j] <- args[k+2]
    }
 }
+#END OF ARGV PARSING
 
+l <- 1
 for( i in 1:4){
+   #aggregating data
    j <- 3
-   files[[i]] <- read.csv(file=in_files[ (i-1)*9 + 1 ],head=TRUE,sep=",")
-   for( k in ( (i-1)*9 + 2 ):( (i-1)*9 + 9 ) ){
+   current <- (i-1)*9 + 1
+   col_counter <- (i-1)*10 +1
+   files[[i]] <- read.csv(file=in_files[ current ],head=TRUE,sep=",")
+
+   conf[l] <- xlabel
+   l <- l+1
+   conf[l] <- paste( "Nodes=", nodes[ current ], "Max-degree=", mds[ current ] , sep="")
+   l <- l+1
+
+   for( k in ( current+1 ):( current + 8 ) ){
       tmp <- read.csv(file=in_files[k], head=TRUE, sep=",")
       files[[i]][j] <- tmp$y
+      conf[l] <- paste( "Nodes=", nodes[ k ], "Max-degree=", mds[ k ] , sep="")
       j <- j+1
+      l <- l+1
    }
+
+   #melting data
+   colnames( files[[i]] ) <- conf[col_counter:(col_counter+9)]
+   data[[i]] <- melt( files[[i]], id=xlabel)
+
 }
-print(files)
-quit()
+
+#plotting
+for( i in 1:4 ){
+
+}
+#end of plotting
 
 plot1 <- arrangeGrob( qp1, qp2)
 plot2 <- arrangeGrob( qp3, qp4)
