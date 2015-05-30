@@ -58,18 +58,16 @@ for( i in 1:4){
    current <- (i-1)*9 + 1
    col_counter <- (i-1)*10 +1
    files[[i]] <- read.csv(file=in_files[ current ],head=TRUE,sep=",")
-   print(files)
 
    conf[l] <- "x"
    l <- l+1
-   conf[l] <- paste( "Nodes=", nodes[ current ], "Max-degree=", mds[ current ] , sep="")
+   conf[l] <- paste( "Nodes=", nodes[ current ], ",Max-degree=", mds[ current ] , sep="")
    l <- l+1
 
    for( k in ( current+1 ):( current + 8 ) ){
       tmp <- read.csv(file=in_files[k], head=TRUE, sep=",")
-      print(tmp)
       files[[i]][j] <- tmp$y
-      conf[l] <- paste( "Nodes=", nodes[ k ], "Max-degree=", mds[ k ] , sep="")
+      conf[l] <- paste( "Nodes=", nodes[ k ], ",Max-degree=", mds[ k ] , sep="")
       j <- j+1
       l <- l+1
    }
