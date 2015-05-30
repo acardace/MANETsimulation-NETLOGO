@@ -59,7 +59,7 @@ for( i in 1:4){
    col_counter <- (i-1)*10 +1
    files[[i]] <- read.csv(file=in_files[ current ],head=TRUE,sep=",")
 
-   conf[l] <- xlabel
+   conf[l] <- "x"
    l <- l+1
    conf[l] <- paste( "Nodes=", nodes[ current ], "Max-degree=", mds[ current ] , sep="")
    l <- l+1
@@ -71,16 +71,15 @@ for( i in 1:4){
       j <- j+1
       l <- l+1
    }
-
-   #melting data
    colnames( files[[i]] ) <- conf[col_counter:(col_counter+9)]
-   data[[i]] <- melt( files[[i]], id=xlabel, variable.name="Experiments")
-
+   #melting data
+   data[[i]] <- melt( files[[i]], id="x", value.name="y" ,variable.name="Experiments")
    #plotting
-   qp[[i]] <- ggplot( data[[i]], aes(x=xlabel, y=value, colour=Experiments)) + stat_smooth() + ggtitle(headings[i]) + xlab(xlabel) + ylab(ylabel)
+   qp[[i]] <- ggplot( data[[i]], aes(x=x, y=y, colour=Experiments)) + stat_smooth() + ggtitle(headings[i]) + xlab(xlabel) + ylab(ylabel)
 }
 
 plot1 <- arrangeGrob( qp[[1]], qp[[2]] )
-plot2 <- arrangeGrob( qp[[3]], qp[[4]] )
+#plot2 <- arrangeGrob( qp3, qp4 )
 ggsave( plot1, file=paste( "p1-", outfile, sep="") )
-ggsave( plot2, file=paste( "p2-", outfile, seq="") )
+#ggsave( plot2, file=paste( "p2-", outfile, seq="") )
+
