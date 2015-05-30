@@ -1,0 +1,22 @@
+"export-plot data (NetLogo 5.2.0)"
+"MANET.nlogo"
+"05/28/2015 13:19:02:430 +0200"
+
+"MODEL SETTINGS"
+"radius","max-degree","nodes-number","node-velocity","all-different","run-length","strategy","export-plots"
+"15","5","80","5","true","2000","""Max-degree-kill""","true"
+
+"""Degree distribution"""
+"x min","x max","y min","y max","autoplot?","current pen","legend open?","number of pens"
+"0","5","0","80","true","""default""","false","1"
+
+"pen name","pen down?","mode","interval","color","x"
+"""default""","true","1","1","0","4"
+
+"""default"""
+"x","y","color","pen down?"
+"0","4","0","true"
+"1","29","0","true"
+"2","28","0","true"
+"3","11","0","true"
+"4","6","0","true"
