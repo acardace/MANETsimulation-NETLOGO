@@ -1,13 +1,12 @@
 #!/bin/bash
 
 #delete all whitespaces
-rename ' ' '-'  $1/*.csv
+rename ' ' '-'  $1/[Degree]*.csv
 echo "whitespaces removed..."
 
-FILES=`ls $1/*.csv | grep -v "Degree"`
-echo $FILES
-exit
+FILES=`ls $1/*.csv | grep 'Degree'`
 echo "doing append operations..."
+
 for i in $FILES
 do
    if [ -e `echo $i | sed 's/\.\///g'` ]
@@ -18,6 +17,13 @@ do
       sed -i 's/,"0","true"//g' $i
       sed -i 's/,"color","pen down?"//g' $i
       sed -i 's/"//g' $i
+
+      #add empty values to file
+      LASTELEM=`cat $i| tail -n 1| cut -d',' -f 1`
+      LASTELEM=`echo $((LASTELEM+1))`
+      for k in `seq $LASTELEM 25`; do
+         echo "$k,0" >> $i
+      done
 
       OUT=`echo $i | sed 's/_[0-9]*.csv/\*.csv/' | sed 's/\.\///g'`
       SAMEFILES=`ls $OUT| sed 's/\.\///g'`
@@ -48,14 +54,16 @@ do
          sed -i 's/,"color","pen down?"//g' $k
          sed -i 's/"//g' $k
 
+         #add empty values to file
+         LASTELEM=`cat $k| tail -n 1| cut -d',' -f 1`
+         LASTELEM=`echo $((LASTELEM+1))`
+         for j in `seq $LASTELEM 25`; do
+            echo "$j,0" >> $k
+         done
+
          # append the content of the file to the first one
          tail -n +2 $k >> $MAINFILE
          rm $k
       done
    fi
 done
-
-#call for degree files as well
-./degreeAggregate.sh $1
-
-echo "DONE!"
