@@ -50,4 +50,4 @@ $CMD #&> /dev/null
 echo "DONE!"
 
 #removing unneeded files
-rm Rplots.pdf
+rm Rplots.pdf &> /dev/null
