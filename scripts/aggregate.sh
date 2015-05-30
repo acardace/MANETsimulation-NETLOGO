@@ -5,8 +5,7 @@ rename ' ' '-'  $1/*.csv
 echo "whitespaces removed..."
 
 FILES=`ls $1/*.csv | grep -v "Degree"`
-echo $FILES
-exit
+
 echo "doing append operations..."
 for i in $FILES
 do
