@@ -46,7 +46,7 @@ do
 done
 
 echo "plotting..."
-$CMD #&> /dev/null
+$CMD &> /dev/null
 echo "DONE!"
 
 #removing unneeded files

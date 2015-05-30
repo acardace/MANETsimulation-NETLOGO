@@ -78,8 +78,8 @@ for( i in 1:4){
    qp[[i]] <- ggplot( data[[i]], aes(x=x, y=y, colour=Experiments)) + stat_smooth() + ggtitle(headings[current]) + xlab(xlabel) + ylab(ylabel)
 }
 
+#saving the plots
 plot1 <- arrangeGrob( qp[[1]], qp[[2]] )
 plot2 <- arrangeGrob( qp[[3]], qp[[4]] )
 ggsave( plot1, file=paste( "p1-", outfile, sep="") )
-ggsave( plot2, file=paste( "p2-", outfile, seq="") )
-
+ggsave( plot2, file=paste( "p2-", outfile, sep="") )
