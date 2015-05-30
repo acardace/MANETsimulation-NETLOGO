@@ -21,9 +21,11 @@ do
       #add empty values to file
       LASTELEM=`cat $i| tail -n 1| cut -d',' -f 1`
       LASTELEM=`echo $((LASTELEM+1))`
-      for k in `seq $LASTELEM 25`; do
-         echo "$k,0" >> $i
+      for j in `seq $LASTELEM 25`; do
+         echo "$j,0" >> $i
       done
+
+
 
       OUT=`echo $i | sed 's/_[0-9]*.csv/\*.csv/' | sed 's/\.\///g'`
       SAMEFILES=`ls $OUT| sed 's/\.\///g'`
