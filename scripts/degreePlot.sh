@@ -9,7 +9,7 @@ MAX_DEGREE=`echo $1 | cut -d'_' -f 5`
 YLABEL=`echo $1 | cut -d'_' -f 1 | sed 's/[a-z,A-Z,\.]*mockup\///' | sed 's/[a-z,A-Z,\.]*plots\///'`
 XLABEL=Time
 HEADING=`echo $OUT|sed 's/_/ /'| sed  's/[a-z,A-Z,\.]*mockup\///'|sed 's/[a-z,A-Z,\.]*plots\///'`
-OUT=`echo $OUT".pdf"| sed  's/[a-z,A-Z,\.]*mockup\///'|sed 's/[a-z,A-Z,\.]*plots\///'`
+OUT=`echo $OUT".eps"| sed  's/[a-z,A-Z,\.]*mockup\///'|sed 's/[a-z,A-Z,\.]*plots\///'`
 
 CMD=$CMD$1" "$OUT" "$XLABEL" "$YLABEL" "$HEADING" "$NODES" "$MAX_DEGREE
 
@@ -46,7 +46,7 @@ do
 done
 
 echo "plotting..."
-$CMD #&> /dev/null
+$CMD &> /dev/null
 echo "DONE!"
 
 #removing unneeded files

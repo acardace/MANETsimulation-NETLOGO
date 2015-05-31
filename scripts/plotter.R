@@ -75,7 +75,7 @@ for( i in 1:4){
    #melting data
    data[[i]] <- melt( files[[i]], id="x", value.name="y" ,variable.name="Experiments")
    #plotting
-   qp[[i]] <- ggplot( data[[i]], aes(x=x, y=y, colour=Experiments)) + stat_smooth() + ggtitle(headings[current]) + xlab(xlabel) + ylab(ylabel) + xlim(c(0,2000) ) + ylim( c(0,1)  )
+   qp[[i]] <- ggplot( data[[i]], aes(x=x, y=y, colour=Experiments )) + geom_smooth() + ggtitle(headings[current]) + xlab(xlabel) + ylab(ylabel) + xlim(c(0,2000) ) + ylim( c(0,1))
 }
 
 #saving the plots

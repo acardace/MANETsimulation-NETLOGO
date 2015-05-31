@@ -75,7 +75,7 @@ for( i in 1:4){
    #melting data
    data[[i]] <- melt( files[[i]], id="x", value.name="y", variable.name="Experiments")
    #plotting
-   qp[[i]] <- ggplot( data[[i]], aes(x=x,  y=y, colour=Experiments,fill=Experiments)) + geom_density(alpha=0.2,stat="identity", position="stack") + ggtitle(headings[current]) + xlab("Degree") + ylab("Nodes") + xlim(c(0,25)   )
+   qp[[i]] <- ggplot( data[[i]], aes(x=x,  y=y, colour=Experiments,fill=Experiments)) + geom_point() + geom_line(stat="identity", position="identity") + ggtitle(headings[current]) + xlab("Degree") + ylab("Nodes") + xlim(c(0,25)) + scale_x_discrete(breaks=seq(0,25)) + theme(axis.text.x  = element_text(angle=45, vjust=0.5, size=8))
 }
 
 #saving the plots
