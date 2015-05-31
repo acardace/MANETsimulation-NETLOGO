@@ -2,6 +2,14 @@
 %
 \usepackage{makeidx}  % allows for indexgeneration
 \usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{float}
+\usepackage[export]{adjustbox}
+%
+\newcommand{\exedout}{%
+	\rule{0.8\textwidth}{0.5\textwidth}%
+}
 \begin{document}
 \mainmatter              % start of the contributions
 %
@@ -126,6 +134,37 @@ Throughout the experiments the following parameters will be set to the following
 \end{itemize}
 %
 These values are relative to the dimension of the torus on which the simulation model is deployed.
+
+\subsection{Connectivity experiments}
+In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the connectivity of the network we obtained.
+\begin{figure}[h!]
+	\begin{minipage}{0.5\textwidth}
+		\includegraphics[scale=0.6,right]{plots/p2-Connectivity_Max-degree-kill}
+		\caption{Experiment-1/2}
+		\label{fig:exp1}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[scale=0.6,left]{plots/p1-Connectivity_Max-degree-kill}
+		\caption{Experiment-3/4}
+		\label{fig:exp2}
+	\end{minipage}
+\end{figure}
+\\\\\\\\\\
+In Fig.~\ref{fig:exp1} and Fig~\ref{fig:exp2} there are the first four experiments in which we compare the performance of the following strategies:
+\begin{itemize}
+	\item Random-kill;
+	\item Max-degree-kill;
+	\item No-bridge-kill (theoretical);
+	\item Most-distant-kill;
+\end{itemize}
+%
+We can observe that all the strategies apart from the "No-bridge-kill" one behave similarly.
+\\\\
+In fact we can deduce from the plots that the amount of nodes is almost irrelevant for the connectivity, as a matter of fact in all the strategies when the maximum degree is set to the five the connectivity doesn't go beyond the 45-50\%, but when we go from $D_{m}=5$ to $D_{m}=15$ we have a sudden change, in fact we can say that between 5 and 15 ($D_{m}$) there's a tipping point value for the connectivity metric.\\\\
+%
+From the plots we can observe that increasing $D_{m}$ up to 15 or more the connectivity goes up to 80\% and the more we increase this value the higher the connectivity is, until reaching almost 100\% for the whole simulation time.
+
 \section{Conclusions}
 % ---- Bibliography ----
 %
