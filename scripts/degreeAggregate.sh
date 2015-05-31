@@ -26,7 +26,7 @@ do
       done
 
       #fill holes
-      ./line_adder.py $i
+      ./line_adder.py $1/$i
 
       OUT=`echo $i | sed 's/_[0-9]*.csv/\*.csv/' | sed 's/\.\///g'`
       SAMEFILES=`ls $OUT| sed 's/\.\///g'`
@@ -65,7 +65,7 @@ do
          done
 
          #fill holes
-         ./line_adder.py $k
+         ./line_adder.py $1/$k
 
          # append the content of the file to the first one
          tail -n +2 $k >> $MAINFILE

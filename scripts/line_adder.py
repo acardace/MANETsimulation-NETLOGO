@@ -6,12 +6,9 @@ import sys
 import os
 import math
 
-os.rename(sys.argv[1], ".tmp.csv")
-
-f = open(".tmp.csv",'r')
-new_f = open(sys.argv[1], 'w')
-
+f = open(sys.argv[1], 'r')
 content = f.read()
+f.close()
 content = content.split('\n')
 
 i = 1
@@ -31,12 +28,11 @@ for s in content[1: (math.floor(len(content)/2))]:
     value = int( s[s.index(',')+1:] )
     toadd = int( content[i+26][content[i+26].index(',') + 1 :] )
     content[i] = str(elem) + "," + str(int( (value + toadd) / 2))
-    print("sub "+str(s)+" with "+str(content[i]))
     i+=1
 
+f = open(sys.argv[1], "w")
+
 for s in content[:(math.floor(len(content)/2))]:
-    new_f.write(str(s) + "\n")
+    f.write(str(s) + "\n")
 
 f.close()
-new_f.close()
-os.unlink(".tmp.csv")
