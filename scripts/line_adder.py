@@ -4,6 +4,7 @@
 
 import sys
 import os
+import math
 
 os.rename(sys.argv[1], ".tmp.csv")
 
@@ -24,7 +25,16 @@ while i < len(content[1:]):
     if counter==26:
         counter = 0
 
-for s in content[:-1]:
+i=1
+for s in content[1: (math.floor(len(content)/2))]:
+    elem = int( s[:s.index(',')] )
+    value = int( s[s.index(',')+1:] )
+    toadd = int( content[i+26][content[i+26].index(',') + 1 :] )
+    content[i] = str(elem) + "," + str(int( (value + toadd) / 2))
+    print("sub "+str(s)+" with "+str(content[i]))
+    i+=1
+
+for s in content[:(math.floor(len(content)/2))]:
     new_f.write(str(s) + "\n")
 
 f.close()

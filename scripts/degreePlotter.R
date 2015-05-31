@@ -73,9 +73,9 @@ for( i in 1:4){
    }
    colnames( files[[i]] ) <- conf[col_counter:(col_counter+9)]
    #melting data
-   data[[i]] <- melt( files[[i]], id="x", value.name="y" ,variable.name="Experiments")
+   data[[i]] <- melt( files[[i]], id="x", value.name="y", variable.name="Experiments")
    #plotting
-   qp[[i]] <- ggplot( data[[i]], aes(x=x, y=y, colour=Experiments)) + geom_density() + ggtitle(headings[current]) + xlab(xlabel) + ylab(ylabel) + xlim(c(0,25) ) + ylim( c(0,90)  )
+   qp[[i]] <- ggplot( data[[i]], aes(x=x,  y=y, colour=Experiments,fill=Experiments)) + geom_density(alpha=0.2,stat="identity", position="stack") + ggtitle(headings[current]) + xlab("Degree") + ylab("Nodes") + xlim(c(0,25)   )
 }
 
 #saving the plots
