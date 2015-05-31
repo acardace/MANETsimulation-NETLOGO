@@ -134,19 +134,22 @@ Throughout the experiments the following parameters will be set to the following
 \end{itemize}
 %
 These values are relative to the dimension of the torus on which the simulation model is deployed.
-
+\\\\
+All the plots shown in this section have been made with the software R using the library ggplot2 and a smoothing algorithm has been applied to all the datasets used for the graphs (except for the degree distribution plot).
+\\\\
+During the following sections not all the strategies will be shown, in fact there are only the main ones (No-bridge-kill, Most-distant-kill, Max-degree-kill, Random-kill), this has been done because all the "hybrid" strategies perform almost the same as their "pure" version and don't exhibit therefore interesting behaviors.
 \subsection{Connectivity experiments}
-In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the connectivity of the network we obtained.
+In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the connectivity of the network we obtain.
 \begin{figure}[h!]
 	\begin{minipage}{0.5\textwidth}
 		\includegraphics[scale=0.6,right]{plots/p2-Connectivity_Max-degree-kill}
-		\caption{Experiment-1/2}
+		\caption{Connectivity experiment - 1/2}
 		\label{fig:exp1}
 	\end{minipage}\hfill
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[scale=0.6,left]{plots/p1-Connectivity_Max-degree-kill}
-		\caption{Experiment-3/4}
+		\caption{Connectivity experiment - 3/4}
 		\label{fig:exp2}
 	\end{minipage}
 \end{figure}
@@ -164,7 +167,29 @@ We can observe that all the strategies apart from the "No-bridge-kill" one behav
 In fact we can deduce from the plots that the amount of nodes is almost irrelevant for the connectivity, as a matter of fact in all the strategies when the maximum degree is set to the five the connectivity doesn't go beyond the 45-50\%, but when we go from $D_{m}=5$ to $D_{m}=15$ we have a sudden change, in fact we can say that between 5 and 15 ($D_{m}$) there's a tipping point value for the connectivity metric.\\\\
 %
 From the plots we can observe that increasing $D_{m}$ up to 15 or more the connectivity goes up to 80\% and the more we increase this value the higher the connectivity is, until reaching almost 100\% for the whole simulation time.
-
+\\\\
+These results are quite predictable because even if the radius is fixed and equals to  15\% when we increase the number of nodes they end up in filling up the whole area on which they are deployed and if the number of possible connection per node (the maximum degree) is sufficient then we can achieve full connectivity.\\
+From these results we can see that this last parameter is the most relevant (compared to the nodes number, because the others are fixed) because independently of the handling connection strategy adopted (even the "Random-kill" performs quite well) the networks we obtain are all quite good in terms of connectivity when the maximum degree value is set to 15.
+\\\\
+The "No-bridge-kill" obviously stands out in terms of connectivity performance because is an optimal behavior, as a matter of fact adopting this strategy the nodes remove a connection in order to replace it with another one only if this connection doesn't break the connected component to which the node belongs in more components, therefore it clearly performs really well, in fact it achieves a value of connectivity higher than the 80\% in most cases (all of them actually, apart from when the nodes are 70) even when $D_{m}=5$.\\\\
+Unfortunately we have to point out again that this strategy is only theoretical and not implementable in reality, because in a MANET network every node is independent and there is no central authority having the information required to be capable of computing whether a connection is a bridge or not.
+%
+%
+\subsection{Edge density experiments}
+In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the edge density of the network we obtain.
+\begin{figure}[h!]
+	\begin{minipage}{0.5\textwidth}
+		\includegraphics[scale=0.6,right]{plots/p2-Edge-density_Max-degree-kill}
+		\caption{Edge density experiment - 1/2}
+		\label{fig:edge1}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[scale=0.6,left]{plots/p1-Edge-density_Max-degree-kill}
+		\caption{Edge density experiment - 3/4}
+		\label{fig:edge2}
+	\end{minipage}
+\end{figure}
 \section{Conclusions}
 % ---- Bibliography ----
 %
