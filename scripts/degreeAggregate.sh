@@ -25,9 +25,6 @@ do
          echo "$j,0" >> $i
       done
 
-      #fill holes
-      ./line_adder.py $i
-
       OUT=`echo $i | sed 's/_[0-9]*.csv/\*.csv/' | sed 's/\.\///g'`
       SAMEFILES=`ls $OUT| sed 's/\.\///g'`
 
@@ -64,12 +61,12 @@ do
             echo "$j,0" >> $k
          done
 
-         #fill holes
-         ./line_adder.py $k
-
          # append the content of the file to the first one
          tail -n +2 $k >> $MAINFILE
          rm $k
       done
+
+      #fill holes
+      ./line_adder.py $MAINFILE
    fi
 done
