@@ -100,9 +100,9 @@ This metric is computed a bit differently from the standard one because in this 
 %
 The edge density $E_{D}$ is computed as follows:\\\\
 %
-\[ E_{D} = \frac{2 * E_{gc} }{ N_{gc} * D_{m} }  \]
+\[ E_{D} = \frac{2 * E_{c} }{ N_{c} * D_{m} }  \]
 \\
-where $E_{gc}$ is the number of edges present in the biggest/giant component and $N_{gc}$ is the number of nodes present in the biggest/giant component.
+where $E_{c}$ is the number of edges present in the network and $N_{c}$ is the number of nodes present in the network.
 \subsection{Bridges}
 An edge in a graph is a bridge if deleting it increases the number of components of the graph.\\\\
 %
@@ -190,7 +190,27 @@ In these experiments the values of the number of nodes in the system and their m
 		\label{fig:edge2}
 	\end{minipage}
 \end{figure}
-\section{Conclusions}
+%
+\\\\
+From the plots in Fig~\ref{fig:edge1} and Fig~\ref{fig:edge2} we can observe that no strategy is really effective in increasing the density of the network, apart from the "No-bridge-kill" one which increases this value (compared to the other strategies) when the nodes in the system are 70 and $D_{m}=5$, this is understandable because of the goodness of the "No-bridge-kill" at keeping bridge connections intact and for the fact that we roughly have the same number of connections over all the experiments, therefore the lower $D_{m}$ is the higher the edge density is, this is a direct consequence of the how the metric is computed.
+%
+\subsection{Bridges experiments}
+In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the value of $B_{gc}$ of the network we obtain.
+\begin{figure}[h!]
+	\begin{minipage}{0.5\textwidth}
+		\includegraphics[scale=0.6,right]{plots/p2-Bridges_Max-degree-kill}
+		\caption{Bridge percentage - 1/2}
+		\label{fig:br1}
+	\end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[scale=0.6,left]{plots/p1-Bridges_Max-degree-kill}
+		\caption{Bridge percentage experiment - 3/4}
+		\label{fig:br2}
+	\end{minipage}
+\end{figure}
+%
+\section{Conclusions} 
 % ---- Bibliography ----
 %
 \begin{thebibliography}{}
