@@ -1,3 +1,9 @@
+;; Author : Antonio Cardace
+;; ID number : 0000738443
+;; E-mail : antonio.cardace2@studio.unibo.it
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Breeds definitions ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -5,24 +11,32 @@
 breed [nodes node]
 breed [halos halo]
 breed [ empty-set ]
-undirected-link-breed [halolinks halolink]
+undirected-link-breed [halolinks halolink] ;; this is just for the halo
 undirected-link-breed [connections connection]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Global variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-globals [ giant-component-edges-number giant-component-nodes-number giant-component bridges ]
+globals [
+   giant-component-edges-number
+   giant-component-nodes-number
+   giant-component ;; this is a list containing the nodes belonging to the giant component
+   bridges
+   ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Local variables ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;nodes local vars
-nodes-own [ node-radius node-max-degree node-degree 
-  connected-nodes node-with-max-degree 
-  local-component-nodes-number local-component
-  visited node-speed ]
+nodes-own [ node-radius node-max-degree node-degree
+  connected-nodes ;; the nodes to which this node is connected
+  node-with-max-degree ;; the node with the maximum degree among the ones connected with this one
+  local-component-nodes-number
+  local-component  ;; a list containing the nodes of the component to which this node belongs
+  visited          ;; useful for the DFS
+  node-speed ]
 
 ;; to be used for bridge-detection
 connections-own [ active bridge counted ]
@@ -56,7 +70,7 @@ to setup
     ;setting local variables
     set connected-nodes []
     set local-component []
-    set node-degree 0 
+    set node-degree 0
     set local-component-nodes-number 0
     set visited false
   ]
@@ -64,19 +78,15 @@ to setup
 end
 
 
+;; this has been taken from a model included in netlogo
 to make-halo [ halo-radius ]  ;; node procedure
-  ;; when you use HATCH, the new turtle inherits the
-  ;; characteristics of the parent.  so the halo will
-  ;; be the same color as the turtle it encircles (unless
-  ;; you add code to change it
   hatch-halos 1
   [ set size halo-radius + 4 ;; the + 4 it's just for visualization reasons
-    ;; Use an RGB color to make halo three fourths transparent
     set color lput 64 extract-rgb color
     __set-line-thickness 0.3
     ;; We create an invisible undirected link from the node
     ;; to the halo.  Using tie means that whenever the
-    ;; runner moves, the halo moves with it.
+    ;; node moves, the halo moves with it.
     create-halolink-with myself
     [ tie
       hide-link ] ]
@@ -93,14 +103,15 @@ to move [ stop-sim? rep-number ]
     rt random 360
     fd node-speed
   ]
-  
+
   ;;these 3 instructions are broken in 3 different blocks for concurrency reasons
   ;;doing as below the nodes execute every instruction as in "parallel"
   ask nodes [ disconnect-not-in-radius ]
   ask nodes [ set-connected-nodes ]
   ask nodes [ connect-to-neighbors ]
   tick
-  
+
+  ;; this block of instructions is for exporting the plots data into csv files
   if ( stop-sim? = true ) and ( ticks >= run-length )[
     if export-plots = true [
       let dir "plots/"
@@ -109,7 +120,7 @@ to move [ stop-sim? rep-number ]
       export-plot "Bridges (%) in giant-component" ( word dir "Bridges_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
       export-plot "Degree distribution" ( word dir "Degree distribution_" strategy "_" nodes-number "_" radius "_" max-degree "_" node-velocity "_" rep-number ".csv" )
     ]
-    
+
     stop
   ]
 end
@@ -128,10 +139,11 @@ to decrease-degree
 end
 
 ;;link the node with node in its radius
-to connect-to-neighbors   
+to connect-to-neighbors
   connect other nodes in-radius node-radius ;; connect the node prior to some replacement strategy
 end
 
+;; disconnect all the nodes which are not in the node's radius anymore
 to disconnect-not-in-radius
   let nodes-in-radius other nodes in-radius node-radius
   if ( is-agentset? connected-nodes ) [
@@ -144,21 +156,22 @@ to disconnect-not-in-radius
   ]
 end
 
+;; update the set of connected nodes
 to set-connected-nodes
   set connected-nodes other nodes in-radius node-radius
 end
 
-;;this function can work both with agentsets or agents 
-to connect [ to-node ]  
+;;this function can work both with agentsets or agents
+to connect [ to-node ]
   let node-list []
-  
+
   ifelse ( is-node? to-node = true )[
     set node-list lput to-node node-list
   ]
   [
     set node-list to-node
   ]
-  
+
   foreach sort node-list [
     if ( link-neighbor? ? = false ) [
       ifelse ( node-degree < node-max-degree and ( [node-degree] of ? ) < ( [node-max-degree] of ? ) ) [
@@ -166,7 +179,7 @@ to connect [ to-node ]
         ask ? [ increase-degree ]
         create-connection-with ? [ set active true ]
       ][
-        replacement-strategy ?          
+        replacement-strategy ?
       ]
    ]
  ]
@@ -185,21 +198,21 @@ to get-component [root-node giant-computation?]
     set local-component-nodes-number 1
     set local-component []
     set local-component fput self local-component
-    
+
     if giant-computation? = false [
       ask nodes [ set visited false ]
-    ]   
+    ]
     set visited true
   ]
-  
+
   ;;DFS
   ask my-connections with [ active = true ] [
     ask other-end [
       if visited = false [
         set visited true
-        ask root-node [ 
-          set local-component fput myself local-component 
-          set local-component-nodes-number local-component-nodes-number + 1       
+        ask root-node [
+          set local-component fput myself local-component
+          set local-component-nodes-number local-component-nodes-number + 1
         ]
      get-component root-node giant-computation?
      ]
@@ -213,11 +226,11 @@ to get-giant-component
   let temp-giant-component one-of nodes
   set giant-component []
   set giant-component-edges-number 0
-  
+
   ;;set all nodes as not visited
   ask nodes [ set visited false ]
   ask connections [ set counted false ]
-  
+
   ;;ask all the nodes to compute their local component and add them to a list
   foreach sort nodes [
     if [visited] of ? = false [
@@ -225,12 +238,12 @@ to get-giant-component
      ask ? [ set giant-component fput local-component giant-component ]
     ]
   ]
-  
+
   set giant-component remove-duplicates giant-component
-  
+
   ;; count the number of nodes of each component
   foreach giant-component [
-    if is-list? ? = true [   
+    if is-list? ? = true [
       if length ? > giant-component-nodes-number [
         set giant-component-nodes-number length ?
         set temp-giant-component ?
@@ -242,7 +255,7 @@ to get-giant-component
   if is-list? giant-component = true [
     foreach giant-component[
       foreach sort ( [my-connections] of ? ) [
-        ask ? [ 
+        ask ? [
           if not counted [
             set counted true
             set giant-component-edges-number giant-component-edges-number + 1
@@ -257,7 +270,7 @@ end
 to count-bridges
   ask connections [ set bridge false ]
   set bridges 0
-  
+
   if is-list? giant-component = true [
     ;;foreach node in the giant-component
     foreach giant-component [
@@ -270,7 +283,7 @@ to count-bridges
         ]
       ]
     ]
-    
+
     set bridges count connections with [bridge = true]
   ]
 end
@@ -280,6 +293,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; wrapper function for the replacement strategy
+;; this way the strategy can be changed at runtime as well
 to replacement-strategy [ node-to-connect ]
   if strategy = "Random-kill" [
     random-kill node-to-connect
@@ -297,7 +311,7 @@ to replacement-strategy [ node-to-connect ]
     no-bridge-kill node-to-connect 2
   ]
   if strategy = "No-bridge-kill" [
-   no-bridge-kill node-to-connect 3 
+   no-bridge-kill node-to-connect 3
   ]
   if strategy = "Most-distant-kill" [
     most-distant-kill node-to-connect
@@ -310,7 +324,7 @@ to replacement-strategy [ node-to-connect ]
   ]
 end
 
-;;randomly kill strategy
+;;randomly kill a connection
 to random-kill [ node-to-connect ]
   ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
     ask one-of my-connections [ kill-connection ]
@@ -359,7 +373,7 @@ end
 ;;auxiliary procedure for "max-degree-kill"
 to find-node-with-max-degree
   ;; determining which is the node with the maximum degree
-  set node-with-max-degree first sort-by [ [node-degree] of ?1 > [node-degree] of ?2 ] connection-neighbors 
+  set node-with-max-degree first sort-by [ [node-degree] of ?1 > [node-degree] of ?2 ] connection-neighbors
 end
 
 ;;this strategy kills a random connection as long as it is not a bridge
@@ -420,7 +434,7 @@ end
 
 ;;this strategy kills the connection with the most distant node
 to most-distant-kill [ node-to-connect ]
-  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [    
+  ifelse ( node-degree = node-max-degree and ( [node-degree] of node-to-connect ) = ( [node-max-degree] of node-to-connect ) ) [
     find-kill-most-distant
     ask node-to-connect [ find-kill-most-distant ]
   ]
@@ -479,7 +493,7 @@ to kill-no-bridge-most-distant
   foreach set-distant-nodes[
    if is-bridge? ? = false [
      set conn-to-kill connection-with ?
-   ]  
+   ]
   ]
   ask conn-to-kill [ kill-connection ]
 end
@@ -523,7 +537,7 @@ to kill-no-bridge-max-degree
        ask connection-with ? [ kill-connection ]
        set flag true
      ]
-   ] 
+   ]
   ]
 end
 
@@ -537,7 +551,7 @@ end
 
 to-report get-bridges
   ifelse giant-component-nodes-number > 1 [
-    report bridges  / giant-component-edges-number 
+    report bridges  / giant-component-edges-number
   ]
   [
     report 0
