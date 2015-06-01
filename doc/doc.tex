@@ -229,24 +229,41 @@ Lastly we have to say that these values are not really encouraging, it is quite 
 %
 \subsection{Degree distribution experiments}
 In these experiments the values of the number of nodes in the system and their maximum degree has been varied to observe how it affects the degree distribution of the network we obtain.
-\begin{figure}[h!]
-	\begin{minipage}{0.5\textwidth}
-		\includegraphics[scale=0.6,right]{plots/p2-Bridges_Max-degree-kill}
-		\caption{Bridge percentage - 1/2}
-		\label{fig:br1}
-	\end{minipage}\hfill
-	\begin{minipage}{0.5\textwidth}
-		\centering
-		\includegraphics[scale=0.6,left]{plots/p1-Bridges_Max-degree-kill}
-		\caption{Bridge percentage experiment - 3/4}
-		\label{fig:br2}
-	\end{minipage}
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{plots/p2-Degree-distribution_Max-degree-kill}
+	\caption{Degree distribution - 1/2}
+	\label{fig:deg-norm1}
+	\includegraphics[scale=0.6]{plots/p1-Degree-distribution_Max-degree-kill}
+	\caption{Degree distribution - 3/4}
+	\label{fig:deg-norm2}
 \end{figure}
 %
+From the plots in Fig.~\ref{fig:deg-norm1} and Fig.~\ref{fig:deg-norm2} we might conclude that the law which the degree distribution obeys is a binomial law, but in order to be sure we have to inspect the plots in Fig.~\ref{fig:deg-log1} and Fig.~\ref{fig:deg-log2} which are the same graphs but plotted in a Log-Log scale (this is useful for inspecting the decay rate of the curves).
+\begin{figure}[!h]
+	\centering
+	\includegraphics[scale=0.6]{plots/log-logp2}
+	\caption{Degree distribution - 1/2}
+	\label{fig:deg-log1}
+\end{figure}
+\begin{figure}[!h]
+	\includegraphics[scale=0.6]{plots/log-logp1}
+	\caption{Degree distribution - 3/4}
+	\label{fig:deg-log2}
+\end{figure}
+Indeed we can conclude that the degree distribution of the nodes in the MANET of these simulations appears to obey a binomial law.
 \section{Conclusions} 
+Finally we can say that MANETs are really delicate networks in which any little parameter change (radius, maximum degree\dots) can completely modify the properties of the network we obtain.
+\\\\
+As a personal choice if I were to deploy a connection handling strategy I would choose the "Most-distant-kill" because it appears to have little better performance than the other ones.
+\\\\
+During this report many simulation results have been shown in which different strategies have been used, nevertheless in the NetLogo implementation of the model there are many more "hybrid" strategies which can used and tested, lastly I would like to point out the importance of the presence of the "No-bridge-kill" strategy which can be used for comparison, since it is an optimal strategy.
 % ---- Bibliography ----
 %
 \begin{thebibliography}{}
-	
+	\bibitem{bib1}
+	 C. Bettstetter, "On the Minimum Node Degree and Connectivity of a Wireless Multihop Network," Proc. MobiHoc 2002, pp. 80-91.
+	 \bibitem{bib2}
+	 R. Hekmat and P. Van Meighem, "Degree Distribution and Hopcount in Wireless Ad-hoc Networks," Proc. IEEE ICON 2003
 \end{thebibliography}
 \end{document}
