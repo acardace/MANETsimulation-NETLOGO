@@ -210,6 +210,16 @@ In these experiments the values of the number of nodes in the system and their m
 	\end{minipage}
 \end{figure}
 %
+\\\\
+The plots in Fig.~\ref{fig:br1} and Fig.~\ref{fig:br2} show the percentage of bridges in the different networks obtained during the experiments, to recap the value of this metric has been defined as the fault-tolerance of network since $B_{gc}$ is the probability to break the giant component in more components if we remove a random connection from it, therefore the lower it is the more resilient the network is.
+\\\\
+Obviously the best handling connection strategy at minimizing this value is the "No-bridge-kill", but since it is so obvious is not interesting.\\
+What is actually interesting is the behavior of the network independently of the strategy adopted, as a matter of fact we can observe that if we increase $D_{m}$ up to 15 then all the strategies keep the value of $B_{gc}$ below the 12-13\%, therefore we might deduce that there is a tipping point between the 5\% and 15\%, and in fact the tipping, as we can see from Fig.~\ref{fig:tip1} is actually 6\%.
+\begin{figure}[h!]
+	\includegraphics[scale=0.5]{plots/bridge_tipping}
+	\caption{tipping point value - Bridges}
+	\label{fig:tip1}
+\end{figure}
 \section{Conclusions} 
 % ---- Bibliography ----
 %
