@@ -133,6 +133,8 @@ Throughout the experiments the following parameters will be set to the following
 	\item $s$ (node speed) = 5%
 \end{itemize}
 %
+and the extensions to the model are enabled, therefore the radius and the node speed for each node are chosen randomly.
+\\\\
 These values are relative to the dimension of the torus on which the simulation model is deployed.
 \\\\
 All the plots shown in this section have been made with the software R using the library ggplot2 and a smoothing algorithm has been applied to all the datasets used for the graphs (except for the degree distribution plot).
@@ -239,7 +241,7 @@ In these experiments the values of the number of nodes in the system and their m
 	\label{fig:deg-norm2}
 \end{figure}
 %
-From the plots in Fig.~\ref{fig:deg-norm1} and Fig.~\ref{fig:deg-norm2} we might conclude that the law which the degree distribution obeys is a binomial law, but in order to be sure we have to inspect the plots in Fig.~\ref{fig:deg-log1} and Fig.~\ref{fig:deg-log2} which are the same graphs but plotted in a Log-Log scale (this is useful for inspecting the decay rate of the curves).
+From the plots in Fig.~\ref{fig:deg-norm1} and Fig.~\ref{fig:deg-norm2} we might conclude that the law which the degree distribution obeys is a binomial law, but in order to be sure (and for curiosity) we inspect the plots in Fig.~\ref{fig:deg-log1} and Fig.~\ref{fig:deg-log2} which are the same graphs but plotted in a Log-Log scale (this is useful for inspecting the decay rate of the curves).
 \begin{figure}[!h]
 	\centering
 	\includegraphics[scale=0.6]{plots/log-logp2}
@@ -251,7 +253,7 @@ From the plots in Fig.~\ref{fig:deg-norm1} and Fig.~\ref{fig:deg-norm2} we might
 	\caption{Degree distribution - 3/4}
 	\label{fig:deg-log2}
 \end{figure}
-Indeed we can conclude that the degree distribution of the nodes in the MANET of these simulations appears to obey a binomial law.
+Indeed we can conclude that the degree distribution of the nodes in the MANET of these simulations appears to obey a binomial law \cite{bib3}.
 \section{Conclusions} 
 Finally we can say that MANETs are really delicate networks in which any little parameter change (radius, maximum degree\dots) can completely modify the properties of the network we obtain.
 \\\\
@@ -265,5 +267,7 @@ During this report many simulation results have been shown in which different st
 	 C. Bettstetter, "On the Minimum Node Degree and Connectivity of a Wireless Multihop Network," Proc. MobiHoc 2002, pp. 80-91.
 	 \bibitem{bib2}
 	 R. Hekmat and P. Van Meighem, "Degree Distribution and Hopcount in Wireless Ad-hoc Networks," Proc. IEEE ICON 2003
+	 \bibitem{bib3}
+	 L. Guo, K. Harfoush, H. Xu, "Distribution of the Node Degree in MANETs", 2010 Fourth International Conference on Next Generation Mobile Applications, Services and Technologies (NGMAST)
 \end{thebibliography}
 \end{document}
